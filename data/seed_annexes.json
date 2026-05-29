@@ -1,0 +1,72 @@
+{
+  "annex_iii": [
+    {
+      "id": "employment",
+      "label": "Employment, workers management and access to self-employment",
+      "keywords": ["candidate", "recruitment", "employment", "worker", "job", "ranking", "CV", "hiring", "promotion", "internship"],
+      "affected_persons": ["job applicant", "worker", "candidate"],
+      "risk_hints": ["bias", "opacity", "automation bias", "discrimination"],
+      "missing_questions": [
+        "Does the AI system rank, filter or evaluate candidates?",
+        "Can a human meaningfully override the result?",
+        "Can the affected person contest the outcome?"
+      ]
+    },
+    {
+      "id": "education",
+      "label": "Education and vocational training",
+      "keywords": ["student", "school", "university", "exam", "admission", "assessment", "grading"],
+      "affected_persons": ["student", "applicant", "learner"],
+      "risk_hints": ["bias", "opacity", "access restriction"],
+      "missing_questions": ["Does the system affect admission or evaluation?", "Is there a human review path?"]
+    },
+    {
+      "id": "public_services",
+      "label": "Essential private services and essential public services and benefits",
+      "keywords": ["housing", "welfare", "benefits", "social services", "municipality", "public service", "public benefits", "credit"],
+      "affected_persons": ["citizen", "beneficiary", "applicant", "low-income person"],
+      "risk_hints": ["bias", "opacity", "weak contestability", "vulnerable group impact"],
+      "missing_questions": ["Does the ranking influence access to an essential service?", "Can the applicant contest the ranking?", "Is a public-sector deployer involved?"]
+    },
+    {
+      "id": "biometrics",
+      "label": "Biometrics",
+      "keywords": ["biometric", "face recognition", "facial recognition", "fingerprint", "identification"],
+      "affected_persons": ["identified person", "citizen"],
+      "risk_hints": ["privacy", "surveillance", "misidentification"],
+      "missing_questions": ["Is biometric identification or categorisation involved?", "Is remote identification used?"]
+    },
+    {
+      "id": "critical_infrastructure",
+      "label": "Critical infrastructure",
+      "keywords": ["electricity", "water", "traffic", "infrastructure", "safety component"],
+      "affected_persons": ["public", "service users"],
+      "risk_hints": ["safety", "systemic impact"],
+      "missing_questions": ["Could failure affect health, safety or access to services?"]
+    },
+    {
+      "id": "law_enforcement",
+      "label": "Law enforcement",
+      "keywords": ["police", "crime", "criminal", "investigation", "risk assessment"],
+      "affected_persons": ["suspect", "victim", "citizen"],
+      "risk_hints": ["discrimination", "surveillance", "due process"],
+      "missing_questions": ["Does the system support police or criminal investigation decisions?"]
+    },
+    {
+      "id": "migration",
+      "label": "Migration, asylum and border control",
+      "keywords": ["asylum", "border", "visa", "migration", "migrant"],
+      "affected_persons": ["asylum seeker", "migrant", "traveller"],
+      "risk_hints": ["vulnerable group impact", "opacity", "weak contestability"],
+      "missing_questions": ["Does the system affect entry, asylum, visa or border decisions?"]
+    },
+    {
+      "id": "justice_democracy",
+      "label": "Administration of justice and democratic processes",
+      "keywords": ["court", "judge", "election", "voting", "democratic process", "judicial"],
+      "affected_persons": ["litigant", "voter", "citizen"],
+      "risk_hints": ["due process", "democratic participation", "opacity"],
+      "missing_questions": ["Does the system influence judicial reasoning or democratic participation?"]
+    }
+  ]
+}

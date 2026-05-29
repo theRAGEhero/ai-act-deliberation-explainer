@@ -1,0 +1,7 @@
+{
+  "actors": ["provider", "deployer", "operator", "importer", "distributor", "product manufacturer", "affected person", "end-user", "human operator", "market surveillance authority"],
+  "concepts": ["AI system", "general-purpose AI model", "high-risk AI system", "systemic risk", "prohibited practice", "intended purpose", "human oversight", "transparency", "technical documentation", "data governance", "dataset provenance", "logging", "risk management", "conformity assessment", "fundamental rights impact assessment", "right to explanation", "vulnerable groups", "employment ranking"],
+  "rights_or_interests": ["transparency", "non-discrimination", "human oversight", "human explanation", "contestability", "privacy", "data protection", "safety", "access to essential services", "access to employment opportunity", "access to education", "democratic participation"],
+  "risks": ["bias", "opacity", "automation bias", "lack of human control", "weak contestability", "discriminatory impact", "vulnerable group impact", "dataset provenance issue", "excessive reliance on AI output", "misleading chatbot interaction", "lack of disclosure"],
+  "obligations_to_verify": ["inform affected person", "inform deployer", "provide instructions for use", "ensure human oversight", "assess fundamental rights impact", "keep logs", "maintain technical documentation", "disclose AI-generated content", "disclose chatbot interaction", "monitor post-market performance", "allow meaningful human review"]
+}

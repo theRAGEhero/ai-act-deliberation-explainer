@@ -1,0 +1,1 @@
+Municipality X wants to use an AI system to rank social housing applications. The model uses historical welfare data. A human officer can approve the final decision, but applicants will not see the score.

@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic
+python-multipart
+rdflib
+lxml
+python-dotenv
+pytest
+httpx
+jinja2
+openai

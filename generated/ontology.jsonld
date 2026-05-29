@@ -1,0 +1,2499 @@
+[
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article96",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 96: Guidelines from the Commission on the implementation of this Regulation"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article58",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 58: Detailed arrangements for, and functioning of, AI regulatory sandboxes"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article90",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 90: Alerts of systemic risks by the scientific panel"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article39",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 39: Conformity assessment bodies of third countries"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#createsObligation",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article9",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 9: Risk management system"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article97",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 97: Exercise of the delegation"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#HighRiskAiSystem",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://example.org/ai-act-deliberation#requires": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#HumanOversight"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "high-risk AI system"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article50",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://example.org/ai-act-deliberation#concerns": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#Transparency"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 50: Transparency obligations for providers and deployers of certain AI systems"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article52",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 52: Procedure"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article94",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 94: Procedural rights of economic operators of the general-purpose AI model"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#MisleadingChatbotInteraction",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Risk"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "misleading chatbot interaction"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article55",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 55: Obligations of providers of general-purpose AI models with systemic risk"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Concept",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AllowMeaningfulHumanReview",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Obligation"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "allow meaningful human review"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article108",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 108: Amendments to Regulation (EU) 2018/1139"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionCouldFailureAffectHealthSafetyOrAccessToServices",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Could failure affect health, safety or access to services?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#ProductManufacturer",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Actor"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "product manufacturer"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article101",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 101: Fines for providers of general-purpose AI models"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article18",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 18: Documentation keeping"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#MonitorPostMarketPerformance",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Obligation"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "monitor post-market performance"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article111",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 111: AI systems already placed on the market or put into service and general-purpose AI models already placed on the marked"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#EmploymentRanking",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://example.org/ai-act-deliberation#mayTrigger": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#AnnexIIIEmployment"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "employment ranking"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionCanTheAffectedPersonContestTheOutcome",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Can the affected person contest the outcome?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionIsRemoteIdentificationUsed",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Is remote identification used?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AnnexIIIJusticeDemocracy",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AnnexArea"
+    ],
+    "http://example.org/ai-act-deliberation#hasMissingQuestion": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheSystemInfluenceJudicialReasoningOrDemocraticParticipation"
+      }
+    ],
+    "http://example.org/ai-act-deliberation#hasRisk": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#DueProcess"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#DemocraticParticipation"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#Opacity"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Administration of justice and democratic processes"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article102",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 102: Amendment to Regulation (EC) No 300/2008"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#NonDiscrimination",
+    "@type": [
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "non-discrimination"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Operator",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Actor"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "operator"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article99",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 99: Penalties"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article60",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 60: Testing of high-risk AI systems in real world conditions outside AI regulatory sandboxes"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheRankingInfluenceAccessToAnEssentialService",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Does the ranking influence access to an essential service?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Contestability",
+    "@type": [
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "contestability"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article4",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 4: AI literacy"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article104",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 104: Amendment to Regulation (EU) No 168/2013"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article87",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 87: Reporting of infringements and protection of reporting persons"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article25",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 25: Responsibilities along the AI value chain"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionIsBiometricIdentificationOrCategorisationInvolved",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Is biometric identification or categorisation involved?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Importer",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Actor"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "importer"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AnnexIIIEducation",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AnnexArea"
+    ],
+    "http://example.org/ai-act-deliberation#hasMissingQuestion": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheSystemAffectAdmissionOrEvaluation"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionIsThereAHumanReviewPath"
+      }
+    ],
+    "http://example.org/ai-act-deliberation#hasRisk": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#Bias"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#Opacity"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#AccessRestriction"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Education and vocational training"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article69",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 69: Access to the pool of experts by the Member States"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Actor",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article74",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 74: Market surveillance and control of AI systems in the Union market"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article29",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 29: Application of a conformity assessment body for notification"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Distributor",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Actor"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "distributor"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article89",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 89: Monitoring actions"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article59",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 59: Further processing of personal data for developing certain AI systems in the public interest in the AI regulatory sandbox"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article36",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 36: Changes to notifications"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#GeneralPurposeAiModel",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "general-purpose AI model"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article113",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 113: Entry into force and application"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#InformDeployer",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Obligation"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "inform deployer"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#DemocraticParticipation",
+    "@type": [
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "democratic participation"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#ExcessiveRelianceOnAiOutput",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Risk"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "excessive reliance on AI output"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article12",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 12: Record-keeping"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AccessToEducation",
+    "@type": [
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "access to education"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AnnexArea",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article21",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 21: Cooperation with competent authorities"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article57",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 57: AI regulatory sandboxes"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article54",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 54: Authorised representatives of providers of general-purpose AI models"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article28",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 28: Notifying authorities"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article14",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://example.org/ai-act-deliberation#concerns": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#HumanOversight"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 14: Human oversight"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionCanTheApplicantContestTheRanking",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Can the applicant contest the ranking?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheSystemSupportPoliceOrCriminalInvestigationDecisions",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Does the system support police or criminal investigation decisions?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#WeakContestability",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Risk"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "weak contestability"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AutomationBias",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Risk"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "automation bias"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article11",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 11: Technical documentation"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article75",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 75: Mutual assistance, market surveillance and control of general-purpose AI systems"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article62",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 62: Measures for providers and deployers, in particular SMEs, including start-ups"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article51",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 51: Classification of general-purpose AI models as general-purpose AI models with systemic risk"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article35",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 35: Identification numbers and lists of notified bodies"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Logging",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "logging"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AnnexIIIMigration",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AnnexArea"
+    ],
+    "http://example.org/ai-act-deliberation#hasMissingQuestion": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheSystemAffectEntryAsylumVisaOrBorderDecisions"
+      }
+    ],
+    "http://example.org/ai-act-deliberation#hasRisk": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#VulnerableGroupImpact"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#Opacity"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#WeakContestability"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Migration, asylum and border control"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article24",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 24: Obligations of distributors"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article68",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 68: Scientific panel of independent experts"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article103",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 103: Amendment to Regulation (EU) No 167/2013"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article72",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 72: Post-market monitoring by providers and post-market monitoring plan for high-risk AI systems"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article112",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 112: Evaluation and review"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#hasRightOrInterest",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article3",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 3: Definitions"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#defines",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#LegalSource",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article2",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 2: Scope"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article6",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 6: Classification rules for high-risk AI systems"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article100",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 100: Administrative fines on Union institutions, bodies, offices and agencies"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article40",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 40: Harmonised standards and standardisation deliverables"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#EvidenceSnippet",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article5",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 5: Prohibited AI practices"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AnnexIIIEmployment",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AnnexArea"
+    ],
+    "http://example.org/ai-act-deliberation#hasMissingQuestion": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheAiSystemRankFilterOrEvaluateCandidates"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionCanAHumanMeaningfullyOverrideTheResult"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionCanTheAffectedPersonContestTheOutcome"
+      }
+    ],
+    "http://example.org/ai-act-deliberation#hasRisk": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#Bias"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#Opacity"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#AutomationBias"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#Discrimination"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Employment, workers management and access to self-employment"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#affects",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article17",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 17: Quality management system"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#DatasetProvenance",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "dataset provenance"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article47",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 47: EU declaration of conformity"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionIsAPublicSectorDeployerInvolved",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Is a public-sector deployer involved?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#ProvideInstructionsForUse",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Obligation"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "provide instructions for use"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article49",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 49: Registration"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article73",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 73: Reporting of serious incidents"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#DiscriminatoryImpact",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Risk"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "discriminatory impact"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article88",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 88: Enforcement of the obligations of providers of general-purpose AI models"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#KeepLogs",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Obligation"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "keep logs"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article7",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 7: Amendments to Annex III"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article66",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 66: Tasks of the Board"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#MarketSurveillanceAuthority",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Actor"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "market surveillance authority"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#DatasetProvenanceIssue",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Risk"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "dataset provenance issue"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#mayTrigger",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AccessToEmploymentOpportunity",
+    "@type": [
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "access to employment opportunity"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article84",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 84: Union AI testing support structures"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionIsThereAHumanReviewPath",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Is there a human review path?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article85",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 85: Right to lodge a complaint with a market surveillance authority"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article33",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 33: Subsidiaries of notified bodies and subcontracting"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article78",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 78: Confidentiality"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#ProhibitedPractice",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "prohibited practice"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article32",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 32: Presumption of conformity with requirements relating to notified bodies"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article105",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 105: Amendment to Directive 2014/90/EU"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article27",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://example.org/ai-act-deliberation#concerns": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#FundamentalRightsImpactAssessment"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 27: Fundamental rights impact assessment for high-risk AI systems"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AccessToEssentialServices",
+    "@type": [
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "access to essential services"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article80",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 80: Procedure for dealing with AI systems classified by the provider as non-high-risk in application of Annex III"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AIActArticle",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article64",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 64: AI Office"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article43",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 43: Conformity assessment"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#DataProtection",
+    "@type": [
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "data protection"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Scenario",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article76",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 76: Supervision of testing in real world conditions by market surveillance authorities"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article20",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 20: Corrective actions and duty of information"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article37",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 37: Challenge to the competence of notified bodies"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article53",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 53: Obligations for providers of general-purpose AI models"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#relatedToAnnexArea",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Risk",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Deployer",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Actor"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "deployer"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article82",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 82: Compliant AI systems which present a risk"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#sourceArticle",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article81",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 81: Union safeguard procedure"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article107",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 107: Amendment to Regulation (EU) 2018/858"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article86",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://example.org/ai-act-deliberation#concerns": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#RightToExplanation"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 86: Right to explanation of individual decision-making"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#RightToExplanation",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "right to explanation"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#HumanOperator",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Actor"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "human operator"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article15",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 15: Accuracy, robustness and cybersecurity"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article61",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 61: Informed consent to participate in testing in real world conditions outside AI regulatory sandboxes"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article10",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 10: Data and data governance"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AnnexIIICriticalInfrastructure",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AnnexArea"
+    ],
+    "http://example.org/ai-act-deliberation#hasMissingQuestion": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionCouldFailureAffectHealthSafetyOrAccessToServices"
+      }
+    ],
+    "http://example.org/ai-act-deliberation#hasRisk": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#Safety"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#SystemicImpact"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Critical infrastructure"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article91",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 91: Power to request documentation and information"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheSystemInfluenceJudicialReasoningOrDemocraticParticipation",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Does the system influence judicial reasoning or democratic participation?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AnnexIIIPublicServices",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AnnexArea"
+    ],
+    "http://example.org/ai-act-deliberation#hasMissingQuestion": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheRankingInfluenceAccessToAnEssentialService"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionCanTheApplicantContestTheRanking"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionIsAPublicSectorDeployerInvolved"
+      }
+    ],
+    "http://example.org/ai-act-deliberation#hasRisk": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#Bias"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#Opacity"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#WeakContestability"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#VulnerableGroupImpact"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Essential private services and essential public services and benefits"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#DiscloseChatbotInteraction",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Obligation"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "disclose chatbot interaction"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#EnsureHumanOversight",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Obligation"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "ensure human oversight"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article106",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 106: Amendment to Directive (EU) 2016/797"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article77",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 77: Powers of authorities protecting fundamental rights"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article110",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 110: Amendment to Directive (EU) 2020/1828"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article16",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 16: Obligations of providers of high-risk AI systems"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article41",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 41: Common specifications"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article71",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 71: EU database for high-risk AI systems listed in Annex III"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article19",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 19: Automatically generated logs"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#RiskManagement",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "risk management"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article67",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 67: Advisory forum"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Privacy",
+    "@type": [
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "privacy"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#concerns",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article46",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 46: Derogation from conformity assessment procedure"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#FundamentalRightsImpactAssessment",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "fundamental rights impact assessment"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#detectedFrom",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article30",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 30: Notification procedure"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Safety",
+    "@type": [
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "safety"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#DiscloseAiGeneratedContent",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Obligation"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "disclose AI-generated content"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#hasObligation",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article93",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 93: Power to request measures"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#MissingQuestion",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article31",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 31: Requirements relating to notified bodies"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#RightOrInterest",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article34",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 34: Operational obligations of notified bodies"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#HumanExplanation",
+    "@type": [
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "human explanation"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article45",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 45: Information obligations of notified bodies"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article8",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 8: Compliance with the requirements"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Transparency",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept",
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "transparency"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article65",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 65: Establishment and structure of the European Artificial Intelligence Board"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article98",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 98: Committee procedure"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#InformAffectedPerson",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Obligation"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "inform affected person"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#DataGovernance",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "data governance"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#TechnicalDocumentation",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "technical documentation"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheSystemAffectAdmissionOrEvaluation",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Does the system affect admission or evaluation?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article48",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 48: CE marking"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionCanAHumanMeaningfullyOverrideTheResult",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Can a human meaningfully override the result?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Provider",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Actor"
+    ],
+    "http://example.org/ai-act-deliberation#hasObligation": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#ProvideInstructionsForUse"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "provider"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article26",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 26: Obligations of deployers of high-risk AI systems"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AffectedPerson",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Actor"
+    ],
+    "http://example.org/ai-act-deliberation#hasRightOrInterest": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#Transparency"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "affected person"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article95",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 95: Codes of conduct for voluntary application of specific requirements"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#HumanOversight",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept",
+      "http://example.org/ai-act-deliberation#RightOrInterest"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "human oversight"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AiSystem",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "AI system"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#hasMissingQuestion",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheSystemAffectEntryAsylumVisaOrBorderDecisions",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Does the system affect entry, asylum, visa or border decisions?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#hasActor",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article22",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 22: Authorised representatives of providers of high-risk AI systems"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#requires",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#IntendedPurpose",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "intended purpose"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheAiSystemRankFilterOrEvaluateCandidates",
+    "@type": [
+      "http://example.org/ai-act-deliberation#MissingQuestion"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Does the AI system rank, filter or evaluate candidates?"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article70",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 70: Designation of national competent authorities and single points of contact"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article56",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 56: Codes of practice"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#VulnerableGroups",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "vulnerable groups"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article38",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 38: Coordination of notified bodies"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article63",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 63: Derogations for specific operators"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#usedInContext",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#ConformityAssessment",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "conformity assessment"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article13",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://example.org/ai-act-deliberation#concerns": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#Transparency"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 13: Transparency and provision of information to deployers"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#VulnerableGroupImpact",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Risk"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "vulnerable group impact"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#EndUser",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Actor"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "end-user"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article1",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 1: Subject matter"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Obligation",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#Class"
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article83",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 83: Formal non-compliance"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Opacity",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Risk"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "opacity"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article23",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 23: Obligations of importers"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article79",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 79: Procedure at national level for dealing with AI systems presenting a risk"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AssessFundamentalRightsImpact",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Obligation"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "assess fundamental rights impact"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article42",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 42: Presumption of conformity with certain requirements"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AnnexIIIBiometrics",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AnnexArea"
+    ],
+    "http://example.org/ai-act-deliberation#hasMissingQuestion": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionIsBiometricIdentificationOrCategorisationInvolved"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionIsRemoteIdentificationUsed"
+      }
+    ],
+    "http://example.org/ai-act-deliberation#hasRisk": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#Privacy"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#Surveillance"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#Misidentification"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Biometrics"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Bias",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Risk"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "bias"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#AnnexIIILawEnforcement",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AnnexArea"
+    ],
+    "http://example.org/ai-act-deliberation#hasMissingQuestion": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#QuestionDoesTheSystemSupportPoliceOrCriminalInvestigationDecisions"
+      }
+    ],
+    "http://example.org/ai-act-deliberation#hasRisk": [
+      {
+        "@id": "http://example.org/ai-act-deliberation#Discrimination"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#Surveillance"
+      },
+      {
+        "@id": "http://example.org/ai-act-deliberation#DueProcess"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Law enforcement"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#LackOfHumanControl",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Risk"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "lack of human control"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article109",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 109: Amendment to Regulation (EU) 2019/2144"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#LackOfDisclosure",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Risk"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "lack of disclosure"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article44",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 44: Certificates"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#Article92",
+    "@type": [
+      "http://example.org/ai-act-deliberation#AIActArticle"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Article 92: Power to conduct evaluations"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#MaintainTechnicalDocumentation",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Obligation"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "maintain technical documentation"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#SystemicRisk",
+    "@type": [
+      "http://example.org/ai-act-deliberation#Concept"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "systemic risk"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/ai-act-deliberation#hasRisk",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ]
+  }
+]

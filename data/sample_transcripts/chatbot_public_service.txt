@@ -1,0 +1,1 @@
+A public service agency wants to deploy a chatbot assistant to answer benefit questions. Citizens may not know they are interacting with an AI system, and the chatbot may generate incorrect eligibility explanations.

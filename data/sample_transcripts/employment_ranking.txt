@@ -1,0 +1,1 @@
+We want to use an AI platform to rank candidates for public internships. The system will use historical data and produce a suitability score. A human officer will make the final decision.

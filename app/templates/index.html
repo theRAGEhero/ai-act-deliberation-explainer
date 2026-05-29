@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Act Deliberation Explainer</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <header class="masthead">
+      <div>
+        <p class="eyebrow">Legal design / civic-tech research prototype</p>
+        <h1>AI Act Deliberation Explainer</h1>
+        <p class="subtitle">A traceable, ontology-assisted preliminary analysis of deliberations about AI systems under the EU AI Act.</p>
+      </div>
+      <aside class="masthead-note">
+        <strong>Boundary</strong>
+        <span>Discussion and education only. Not legal advice. Not compliance certification.</span>
+      </aside>
+    </header>
+    <section class="method-strip">
+      <span>Input text</span>
+      <span>Deterministic rules</span>
+      <span>AI Act sources</span>
+      <span>RDF ontology</span>
+      <span>Traceable output</span>
+    </section>
+    <section class="card input-card">
+      <div class="section-label">Scenario input</div>
+      <label for="text">Meeting transcript, discussion notes, or AI-use scenario</label>
+      <textarea id="text" rows="9">Municipality X wants to use an AI system to rank social housing applications. The model uses historical welfare data. A human officer can approve the final decision, but applicants will not see the score.</textarea>
+      <div class="actions">
+        <input id="file" type="file" accept=".txt">
+        <label><input id="useLlm" type="checkbox"> use optional LLM</label>
+        <button id="analyze">Analyze</button>
+      </div>
+      <div id="status"></div>
+    </section>
+    <section id="output" hidden>
+      <div class="card abstract-card">
+        <div class="section-label">Preliminary finding</div>
+        <h2>Case summary</h2>
+        <p id="summary" class="summary-text"></p>
+        <p id="citizen" class="citizen-text"></p>
+      </div>
+      <div class="grid evidence-grid">
+        <div class="card"><h2>Actors</h2><ul id="actors"></ul></div>
+        <div class="card"><h2>Contexts / functions</h2><ul id="contexts"></ul><ul id="functions"></ul></div>
+        <div class="card"><h2>Risks</h2><ul id="risks"></ul></div>
+        <div class="card"><h2>Rights / interests</h2><ul id="rights"></ul></div>
+        <div class="card"><h2>Obligations to verify</h2><ul id="obligations"></ul></div>
+        <div class="card"><h2>Missing questions</h2><ul id="questions"></ul></div>
+      </div>
+      <div class="card graph-card">
+        <div class="card-head">
+          <h2>Visual maps</h2>
+          <span class="section-tag">Comparative legal-design views</span>
+        </div>
+        <div id="visualTabs" class="visual-tabs">
+          <button type="button" class="visual-tab active" data-view="network">Network</button>
+          <button type="button" class="visual-tab" data-view="traceFlow">Trace flow</button>
+          <button type="button" class="visual-tab" data-view="actorMap">Actor map</button>
+          <button type="button" class="visual-tab" data-view="riskMatrix">Risk matrix</button>
+          <button type="button" class="visual-tab" data-view="sourceMap">Source map</button>
+          <button type="button" class="visual-tab" data-view="questionTree">Question tree</button>
+          <button type="button" class="visual-tab" data-view="obligationMap">Obligations</button>
+          <button type="button" class="visual-tab" data-view="bipartiteMap">Risks/rights</button>
+          <button type="button" class="visual-tab" data-view="lifecycleMap">Lifecycle</button>
+          <button type="button" class="visual-tab" data-view="projectInfo">Project info</button>
+        </div>
+        <div class="visual-panel active" data-panel="network">
+          <div id="graphLegend" class="legend"></div>
+          <div class="graph-wrap">
+            <svg id="knowledgeGraph" viewBox="0 0 1180 760" role="img" aria-label="Network graph of detected actors, risks, rights, obligations and AI Act sources"></svg>
+          </div>
+          <div id="graphDetails" class="graph-details">Select a node to inspect it.</div>
+        </div>
+        <div id="traceFlow" class="visual-panel" data-panel="traceFlow"></div>
+        <div id="actorMap" class="visual-panel" data-panel="actorMap"></div>
+        <div id="riskMatrix" class="visual-panel" data-panel="riskMatrix"></div>
+        <div id="sourceMap" class="visual-panel" data-panel="sourceMap"></div>
+        <div id="questionTree" class="visual-panel" data-panel="questionTree"></div>
+        <div id="obligationMap" class="visual-panel" data-panel="obligationMap"></div>
+        <div id="bipartiteMap" class="visual-panel" data-panel="bipartiteMap"></div>
+        <div id="lifecycleMap" class="visual-panel" data-panel="lifecycleMap"></div>
+        <div id="projectInfo" class="visual-panel" data-panel="projectInfo"></div>
+      </div>
+      <div class="card"><div class="section-label">Legal source layer</div><h2>AI Act sources</h2><ul id="sources"></ul></div>
+      <div class="card"><div class="section-label">Audit trail</div><h2>Traceability</h2><table><thead><tr><th>Input</th><th>Concept</th><th>Source</th><th>Note</th></tr></thead><tbody id="trace"></tbody></table></div>
+      <div class="card"><div class="section-label">Machine-readable output</div><h2>Raw JSON</h2><pre id="raw"></pre></div>
+    </section>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const list = (id, values) => { $(id).innerHTML = ""; values.forEach(v => { const li = document.createElement("li"); li.textContent = v.label || v; $(id).appendChild(li); }); };
+    const graphPalette = {
+      scenario: { fill: "#111827", stroke: "#111827", text: "#ffffff", label: "Scenario" },
+      actor: { fill: "#e0f2fe", stroke: "#0284c7", text: "#0c4a6e", label: "Actors" },
+      risk: { fill: "#fee2e2", stroke: "#dc2626", text: "#7f1d1d", label: "Risks" },
+      right: { fill: "#dcfce7", stroke: "#16a34a", text: "#14532d", label: "Rights" },
+      obligation: { fill: "#fef3c7", stroke: "#d97706", text: "#78350f", label: "Obligations" },
+      article: { fill: "#ede9fe", stroke: "#7c3aed", text: "#3b0764", label: "Sources" }
+    };
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;" }[ch]));
+    }
+
+    function wrapSvgText(text, maxChars = 18) {
+      const words = String(text || "").split(/\s+/);
+      const lines = [];
+      let line = "";
+      words.forEach((word) => {
+        const next = line ? `${line} ${word}` : word;
+        if (next.length > maxChars && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = next;
+        }
+      });
+      if (line) lines.push(line);
+      return lines.slice(0, 3);
+    }
+
+    function shortGraphLabel(node) {
+      const label = String(node.label || "");
+      const replacements = {
+        "access to essential public services": "access to services",
+        "privacy/data protection": "privacy / data",
+        "allow meaningful human review": "human review",
+        "assess fundamental rights impact": "FRIA",
+        "maintain technical documentation": "technical docs",
+        "provide instructions for use": "instructions",
+        "automation bias": "automation bias",
+        "weak contestability": "contestability risk"
+      };
+      if (replacements[label]) return replacements[label];
+      if (node.type === "article") return label.replace("Article ", "Art. ");
+      return label;
+    }
+
+    function renderLegend() {
+      $("graphLegend").innerHTML = "";
+      ["actor", "risk", "right", "obligation", "article"].forEach((type) => {
+        const item = document.createElement("span");
+        item.className = "legend-item";
+        item.innerHTML = `<span style="background:${graphPalette[type].fill}; border-color:${graphPalette[type].stroke}"></span>${graphPalette[type].label}`;
+        $("graphLegend").appendChild(item);
+      });
+    }
+
+    function labelList(items, limit = 8) {
+      return (items || []).slice(0, limit).map((item) => item.label || item);
+    }
+
+    function chip(label, type = "") {
+      return `<span class="viz-chip ${type}">${escapeHtml(label)}</span>`;
+    }
+
+    function setPanel(id, html) {
+      $(id).innerHTML = html;
+    }
+
+    function setupVisualTabs() {
+      document.querySelectorAll(".visual-tab").forEach((button) => {
+        button.onclick = () => {
+          document.querySelectorAll(".visual-tab").forEach((tab) => tab.classList.toggle("active", tab === button));
+          document.querySelectorAll(".visual-panel").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === button.dataset.view));
+        };
+      });
+    }
+
+    function renderAllVisualMaps(data) {
+      renderKnowledgeGraph(data.graph);
+      renderTraceFlow(data);
+      renderActorMap(data);
+      renderRiskMatrix(data);
+      renderSourceMap(data);
+      renderQuestionTree(data);
+      renderObligationMap(data);
+      renderBipartiteMap(data);
+      renderLifecycleMap(data);
+      renderProjectInfo(data);
+    }
+
+    function renderTraceFlow(data) {
+      const rows = (data.traceability || []).slice(0, 8).map((item) => `
+        <div class="flow-row">
+          <div class="flow-box evidence">${escapeHtml(item.input_snippet)}</div>
+          <div class="flow-arrow">-></div>
+          <div class="flow-box concept">${escapeHtml(item.detected_concept)}</div>
+          <div class="flow-arrow">-></div>
+          <div class="flow-box source">${escapeHtml(item.relevant_source || "Source to verify")}</div>
+        </div>
+      `).join("");
+      setPanel("traceFlow", `<div class="viz-note">Audit path from text to legal source.</div><div class="flow-list">${rows}</div>`);
+    }
+
+    function renderActorMap(data) {
+      const obligations = labelList(data.obligations_to_verify, 10);
+      const buckets = {
+        provider: obligations.filter((o) => /instruction|documentation|technical|monitor/i.test(o)),
+        deployer: obligations.filter((o) => /human|impact|logs|inform deployer|review/i.test(o)),
+        "affected person": ["transparency", "contestability", "human explanation"].filter((label) => labelList(data.possible_rights_or_interests, 20).includes(label)),
+        "human operator": obligations.filter((o) => /human|review|oversight/i.test(o))
+      };
+      const actors = labelList(data.detected_actors, 8).map((actor) => {
+        const duties = buckets[actor] || obligations.slice(0, 3);
+        return `<div class="actor-card"><h3>${escapeHtml(actor)}</h3><div class="chip-list">${duties.map((d) => chip(d, "obligation")).join("") || chip("role to verify", "muted")}</div></div>`;
+      }).join("");
+      setPanel("actorMap", `<div class="viz-note">Who may need to do or receive what.</div><div class="actor-grid">${actors}</div>`);
+    }
+
+    function renderRiskMatrix(data) {
+      const risks = data.possible_risks || [];
+      const bucket = { "High impact / higher signal": [], "High impact / lower signal": [], "Lower impact / higher signal": [], "Lower impact / lower signal": [] };
+      risks.forEach((risk) => {
+        const highImpact = /bias|vulnerable|contestability|opacity|automation/i.test(risk.label);
+        const highSignal = (risk.confidence || 0) >= 0.7;
+        const key = highImpact && highSignal ? "High impact / higher signal" : highImpact ? "High impact / lower signal" : highSignal ? "Lower impact / higher signal" : "Lower impact / lower signal";
+        bucket[key].push(risk.label);
+      });
+      const cells = Object.entries(bucket).map(([title, values]) => `<div class="matrix-cell"><h3>${title}</h3><div class="chip-list">${values.map((v) => chip(v, "risk")).join("") || chip("none detected", "muted")}</div></div>`).join("");
+      setPanel("riskMatrix", `<div class="viz-note">Discussion prioritisation, not a legal conclusion.</div><div class="risk-matrix">${cells}</div>`);
+    }
+
+    function renderSourceMap(data) {
+      const sources = (data.relevant_ai_act_sources || []).slice(0, 10);
+      const sourceNodes = sources.map((s) => `<div class="source-node"><strong>${escapeHtml(s.article_number === "Annex III" ? "Annex III" : "Article " + s.article_number)}</strong><span>${escapeHtml(s.article_heading || "")}</span></div>`).join("");
+      setPanel("sourceMap", `<div class="viz-note">Why the legal sources were pulled into the analysis.</div><div class="source-map"><div class="source-root">Scenario</div><div class="source-rail">${sourceNodes}</div></div>`);
+    }
+
+    function renderQuestionTree(data) {
+      const questions = (data.missing_questions || []).slice(0, 10).map((q, index) => `<div class="question-node"><span>${index + 1}</span>${escapeHtml(q)}</div>`).join("");
+      setPanel("questionTree", `<div class="viz-note">Questions for the group before anyone treats the analysis as settled.</div><div class="question-tree"><div class="question-root">Missing information</div><div class="question-branches">${questions}</div></div>`);
+    }
+
+    function renderObligationMap(data) {
+      const obligations = labelList(data.obligations_to_verify, 20);
+      const groups = {
+        "Verify now": obligations.filter((o) => /inform|human|review/i.test(o)),
+        "Depends on high-risk classification": obligations.filter((o) => /impact|logs|documentation|instructions/i.test(o)),
+        "Depends on system type": obligations.filter((o) => /chatbot|generated|content/i.test(o))
+      };
+      const html = Object.entries(groups).map(([title, values]) => `<div class="obligation-column"><h3>${title}</h3>${values.map((v) => chip(v, "obligation")).join("") || chip("none detected", "muted")}</div>`).join("");
+      setPanel("obligationMap", `<div class="viz-note">A checklist view for follow-up work.</div><div class="obligation-grid">${html}</div>`);
+    }
+
+    function renderBipartiteMap(data) {
+      const rights = labelList(data.possible_rights_or_interests, 8);
+      const risks = labelList(data.possible_risks, 8);
+      const rows = risks.map((risk) => {
+        const linked = rights.filter((right) =>
+          (risk.includes("bias") && /non-discrimination|services|employment/i.test(right)) ||
+          (risk.includes("opacity") && /transparency|explanation/i.test(right)) ||
+          (risk.includes("contestability") && /contestability|explanation/i.test(right)) ||
+          (risk.includes("automation") && /human oversight|human explanation/i.test(right)) ||
+          (risk.includes("vulnerable") && /non-discrimination|services/i.test(right))
+        );
+        return `<div class="bip-row"><div>${chip(risk, "risk")}</div><div class="flow-arrow">-></div><div class="chip-list">${(linked.length ? linked : rights.slice(0, 2)).map((r) => chip(r, "right")).join("")}</div></div>`;
+      }).join("");
+      setPanel("bipartiteMap", `<div class="viz-note">How risk signals connect to rights or interests.</div><div class="bipartite">${rows}</div>`);
+    }
+
+    function renderLifecycleMap(data) {
+      const obligations = labelList(data.obligations_to_verify, 20);
+      const phases = [
+        ["Design", obligations.filter((o) => /documentation|instructions/i.test(o))],
+        ["Procurement", ["identify provider", "define intended purpose"]],
+        ["Deployment", obligations.filter((o) => /inform|logs|impact/i.test(o))],
+        ["Decision", obligations.filter((o) => /human|review|oversight/i.test(o))],
+        ["Appeal", labelList(data.missing_questions, 4).filter((q) => /contest|explain|score/i.test(q))],
+        ["Monitoring", obligations.filter((o) => /monitor|logs/i.test(o))]
+      ];
+      const html = phases.map(([phase, items]) => `<div class="life-phase"><h3>${escapeHtml(phase)}</h3><div class="chip-list">${items.map((i) => chip(i, "muted")).join("") || chip("to define", "muted")}</div></div>`).join("");
+      setPanel("lifecycleMap", `<div class="viz-note">Where concerns appear across the AI-system lifecycle.</div><div class="lifecycle">${html}</div>`);
+    }
+
+    function renderProjectInfo(data) {
+      const articleCount = (data.relevant_ai_act_sources || []).length;
+      setPanel("projectInfo", `
+        <div class="project-info">
+          <div class="info-block">
+            <h3>Project</h3>
+            <p><strong>AI Act Deliberation Explainer</strong> is a backend-first legal-design prototype for civic-tech workshops and hackathon demos.</p>
+            <p>It turns a transcript, scenario, or discussion note into a preliminary map of possible AI Act relevance: actors, contexts, risks, rights/interests, obligations to verify, missing questions, sources, traceability, JSON and RDF.</p>
+          </div>
+          <div class="info-block warning">
+            <h3>Legal boundary</h3>
+            <p>This tool does not provide legal advice, does not certify compliance, and does not decide whether a system is legal or illegal.</p>
+            <p>It uses cautious language such as possible, to verify, may be relevant, missing information and requires human review.</p>
+          </div>
+          <div class="info-grid">
+            <div class="info-block">
+              <h3>Pipeline</h3>
+              <ol>
+                <li>Normalize text and split it into claims.</li>
+                <li>Detect keywords and legal-design concepts with deterministic rules.</li>
+                <li>Map concepts to AI Act articles and Annex III areas.</li>
+                <li>Build traceability from input snippets to concepts and sources.</li>
+                <li>Return machine-readable JSON and visual maps.</li>
+                <li>Expose RDF/Turtle and JSON-LD ontology exports.</li>
+              </ol>
+            </div>
+            <div class="info-block">
+              <h3>Backend modules</h3>
+              <ul>
+                <li><code>AKNParser</code>: parses <code>data/aiACT.xml</code>.</li>
+                <li><code>LegalKnowledgeDB</code>: in-memory searchable legal source store.</li>
+                <li><code>RuleEngine</code>: deterministic analysis without an API key.</li>
+                <li><code>OntologyStore</code>: RDF graph with AI Act concepts.</li>
+                <li><code>ReportBuilder</code>: stable JSON, disclaimer, graph data.</li>
+                <li><code>OptionalLLMAgent</code>: optional OpenAI-compatible refinement.</li>
+              </ul>
+            </div>
+            <div class="info-block">
+              <h3>Current analysis</h3>
+              <ul>
+                <li>Actors detected: ${data.detected_actors.length}</li>
+                <li>Contexts detected: ${data.detected_contexts.length}</li>
+                <li>AI functions detected: ${data.detected_ai_functions.length}</li>
+                <li>Risk signals: ${data.possible_risks.length}</li>
+                <li>Sources shown: ${articleCount}</li>
+                <li>Traceability rows: ${data.traceability.length}</li>
+              </ul>
+            </div>
+            <div class="info-block">
+              <h3>Technical endpoints</h3>
+              <ul>
+                <li><code>POST /api/analyze</code>: JSON analysis.</li>
+                <li><code>POST /api/upload</code>: .txt upload analysis.</li>
+                <li><code>GET /api/articles</code>: parsed AI Act sources.</li>
+                <li><code>GET /api/ontology.ttl</code>: RDF/Turtle export.</li>
+                <li><code>GET /api/ontology.jsonld</code>: JSON-LD export.</li>
+                <li><code>GET /api/health</code>: parser and ontology status.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      `);
+    }
+
+    function layoutGraph(graph) {
+      const byId = Object.fromEntries(graph.nodes.map((node) => [node.id, { ...node }]));
+      const centerX = 590;
+      const centerY = 380;
+      const center = byId.scenario || graph.nodes[0];
+      if (center) {
+        center.x = centerX;
+        center.y = centerY;
+        center.r = 66;
+      }
+      const bands = {
+        actor: { start: 168, end: 220, radius: 360, limit: 4, r: 50 },
+        right: { start: 125, end: 165, radius: 315, limit: 5, r: 47 },
+        article: { start: 235, end: 305, radius: 292, limit: 7, r: 43 },
+        risk: { start: -35, end: 35, radius: 318, limit: 5, r: 50 },
+        obligation: { start: 48, end: 105, radius: 350, limit: 5, r: 46 }
+      };
+      Object.entries(bands).forEach(([type, cfg]) => {
+        const nodes = graph.nodes.filter((node) => node.type === type).slice(0, cfg.limit);
+        const step = nodes.length > 1 ? (cfg.end - cfg.start) / (nodes.length - 1) : 0;
+        nodes.forEach((node, index) => {
+          const degrees = cfg.start + step * index;
+          const radians = (Math.PI / 180) * degrees;
+          const stagger = index % 2 ? 10 : -6;
+          byId[node.id].x = centerX + Math.cos(radians) * (cfg.radius + stagger);
+          byId[node.id].y = centerY + Math.sin(radians) * (cfg.radius + stagger);
+          byId[node.id].r = cfg.r;
+          byId[node.id].shortLabel = shortGraphLabel(byId[node.id]);
+        });
+      });
+      return byId;
+    }
+
+    function edgeEndpoints(source, target) {
+      const dx = target.x - source.x;
+      const dy = target.y - source.y;
+      const length = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+      const sx = source.x + (dx / length) * (source.r || 42);
+      const sy = source.y + (dy / length) * (source.r || 42);
+      const tx = target.x - (dx / length) * (target.r || 42);
+      const ty = target.y - (dy / length) * (target.r || 42);
+      return { sx, sy, tx, ty };
+    }
+
+    function renderKnowledgeGraph(graph) {
+      renderLegend();
+      const svg = $("knowledgeGraph");
+      svg.innerHTML = "";
+      if (!graph || !graph.nodes || !graph.nodes.length) return;
+      const nodes = layoutGraph(graph);
+      const visibleIds = new Set(Object.keys(nodes).filter((id) => Number.isFinite(nodes[id].x)));
+      const edges = graph.edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
+
+      const edgeElements = [];
+      edges.forEach((edge) => {
+        const source = nodes[edge.source];
+        const target = nodes[edge.target];
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        const points = edgeEndpoints(source, target);
+        line.setAttribute("x1", points.sx);
+        line.setAttribute("y1", points.sy);
+        line.setAttribute("x2", points.tx);
+        line.setAttribute("y2", points.ty);
+        line.setAttribute("fill", "none");
+        line.setAttribute("stroke", graphPalette[target.type]?.stroke || "#94a3b8");
+        line.setAttribute("stroke-width", target.type === "article" ? "1.2" : "1.55");
+        line.setAttribute("stroke-linecap", "round");
+        line.setAttribute("opacity", target.type === "article" ? "0.42" : "0.58");
+        line.setAttribute("class", `graph-edge edge-${target.type}`);
+        line.dataset.source = edge.source;
+        line.dataset.target = edge.target;
+        edgeElements.push(line);
+        svg.appendChild(line);
+      });
+
+      Object.values(nodes).filter((node) => visibleIds.has(node.id)).forEach((node) => {
+        const style = graphPalette[node.type] || graphPalette.scenario;
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        group.setAttribute("class", `graph-node node-${node.type}`);
+        group.setAttribute("tabindex", "0");
+        group.setAttribute("transform", `translate(${node.x} ${node.y})`);
+        group.dataset.label = node.label;
+        group.dataset.type = style.label || node.type;
+        group.dataset.id = node.id;
+        group.dataset.edges = graph.edges.filter((edge) => edge.source === node.id || edge.target === node.id).length;
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("r", node.r || 44);
+        circle.setAttribute("fill", style.fill);
+        circle.setAttribute("stroke", style.stroke);
+        group.appendChild(circle);
+
+        const lines = wrapSvgText(node.shortLabel || node.label, node.type === "scenario" ? 18 : node.type === "article" ? 11 : 14);
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", "0");
+        text.setAttribute("y", -(lines.length - 1) * 7);
+        text.setAttribute("fill", style.text);
+        text.setAttribute("text-anchor", "middle");
+        lines.forEach((lineText, index) => {
+          const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+          tspan.setAttribute("x", "0");
+          tspan.setAttribute("dy", index === 0 ? "0" : "14");
+          tspan.textContent = lineText;
+          text.appendChild(tspan);
+        });
+        group.appendChild(text);
+
+        group.addEventListener("click", () => showGraphDetails(group.dataset));
+        group.addEventListener("focus", () => showGraphDetails(group.dataset));
+        enableNodeDrag(svg, group, node, nodes, edgeElements);
+        svg.appendChild(group);
+      });
+    }
+
+    function showGraphDetails(data) {
+      $("graphDetails").innerHTML = `<strong>${escapeHtml(data.label)}</strong><span>${escapeHtml(data.type)} · ${escapeHtml(data.edges)} links</span>`;
+    }
+
+    function enableNodeDrag(svg, group, node, nodes, edgeElements) {
+      group.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        group.setPointerCapture(event.pointerId);
+        group.classList.add("dragging");
+        const start = pointerInSvg(svg, event);
+        const origin = { x: node.x, y: node.y };
+        const move = (moveEvent) => {
+          const current = pointerInSvg(svg, moveEvent);
+          node.x = Math.max(55, Math.min(1125, origin.x + current.x - start.x));
+          node.y = Math.max(55, Math.min(705, origin.y + current.y - start.y));
+          group.setAttribute("transform", `translate(${node.x} ${node.y})`);
+          updateConnectedEdges(node.id, nodes, edgeElements);
+        };
+        const stop = () => {
+          group.classList.remove("dragging");
+          group.removeEventListener("pointermove", move);
+          group.removeEventListener("pointerup", stop);
+          group.removeEventListener("pointercancel", stop);
+        };
+        group.addEventListener("pointermove", move);
+        group.addEventListener("pointerup", stop);
+        group.addEventListener("pointercancel", stop);
+      });
+    }
+
+    function pointerInSvg(svg, event) {
+      const point = svg.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+      return point.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    function updateConnectedEdges(nodeId, nodes, edgeElements) {
+      edgeElements.forEach((line) => {
+        if (line.dataset.source !== nodeId && line.dataset.target !== nodeId) return;
+        const source = nodes[line.dataset.source];
+        const target = nodes[line.dataset.target];
+        const points = edgeEndpoints(source, target);
+        line.setAttribute("x1", points.sx);
+        line.setAttribute("y1", points.sy);
+        line.setAttribute("x2", points.tx);
+        line.setAttribute("y2", points.ty);
+      });
+    }
+
+    $("analyze").onclick = async () => {
+      $("status").textContent = "Analyzing...";
+      const file = $("file").files[0];
+      let res;
+      if (file) {
+        const fd = new FormData();
+        fd.append("file", file);
+        res = await fetch(`/api/upload?use_llm=${$("useLlm").checked}`, { method: "POST", body: fd });
+      } else {
+        res = await fetch("/api/analyze", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ text: $("text").value, use_llm: $("useLlm").checked }) });
+      }
+      const data = await res.json();
+      $("status").textContent = res.ok ? "" : JSON.stringify(data);
+      if (!res.ok) return;
+      $("output").hidden = false;
+      $("summary").textContent = data.case_summary;
+      $("citizen").textContent = data.citizen_explanation;
+      list("actors", data.detected_actors);
+      list("contexts", data.detected_contexts);
+      list("functions", data.detected_ai_functions);
+      list("risks", data.possible_risks);
+      list("rights", data.possible_rights_or_interests);
+      list("obligations", data.obligations_to_verify);
+      list("questions", data.missing_questions);
+      setupVisualTabs();
+      renderAllVisualMaps(data);
+      $("sources").innerHTML = "";
+      data.relevant_ai_act_sources.forEach(s => { const li = document.createElement("li"); li.textContent = `Article ${s.article_number}: ${s.article_heading || ""} - ${s.relevance_reason}`; $("sources").appendChild(li); });
+      $("trace").innerHTML = "";
+      data.traceability.forEach(t => {
+        const tr = document.createElement("tr");
+        [t.input_snippet, t.detected_concept, t.relevant_source || "", t.note].forEach((value) => {
+          const td = document.createElement("td");
+          td.textContent = value;
+          tr.appendChild(td);
+        });
+        $("trace").appendChild(tr);
+      });
+      $("raw").textContent = JSON.stringify(data, null, 2);
+    };
+  </script>
+</body>
+</html>
