@@ -108,6 +108,7 @@ This makes the project easier to defend:
 - **Fail-closed behavior:** missing or invalid legal sources produce `analysis_unavailable`; there is no silent fallback.
 - **Amended Article 5 boundary:** amended Article 5 material is grouped separately for clarity and integrated in this prototype.
 - **LLM containment:** LLM usage is optional, provenance-labelled, and limited to candidate fact suggestions plus wording.
+- **Guided fact collection:** the conversational UI only asks for missing factual details and re-runs the same deterministic checker.
 
 ## Deterministic Workflow Boundary
 
@@ -531,6 +532,7 @@ If no API key is configured, the app runs fully in deterministic mode.
 The UI supports:
 
 - direct text input;
+- guided fact collection for missing factual details;
 - `.txt` upload;
 - optional LLM context suggestions and wording refinement;
 - result cards for matched practices;
@@ -541,6 +543,8 @@ The UI supports:
 - traceability rows;
 - graph/ontology views;
 - raw JSON output.
+
+The guided fact-collection panel is conversational UX only. It appends the user's answers as additional scenario facts and calls `/api/analyze` again. It does not perform legal reasoning outside the deterministic RDF/AKN-gated backend.
 
 UI icons are loaded from:
 

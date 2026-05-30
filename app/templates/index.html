@@ -28,14 +28,17 @@
       <span>Traceable JSON</span>
     </section>
     <section class="home-layout">
-      <div class="card input-card">
-        <div class="section-label">Scenario input</div>
-        <label for="text">Meeting transcript, discussion notes, or AI-use scenario</label>
+      <div class="card input-card guided-card">
+        <div class="section-label">Guided fact collection</div>
+        <div id="chatLog" class="chat-log" aria-live="polite"></div>
+        <label for="text">Scenario facts sent to the deterministic checker</label>
         <textarea id="text" rows="9">A public authority wants to use an AI system to assign social scores to citizens over time based on social behaviour and predicted personality characteristics. The score may lead to detrimental treatment when people apply for public services.</textarea>
+        <div id="followUpPanel" class="follow-up-panel" hidden></div>
         <div class="actions">
           <input id="file" type="file" accept=".txt">
           <label><input id="useLlm" type="checkbox"> use LLM for context suggestions and wording</label>
           <button id="analyze">Analyze</button>
+          <button id="resetChat" type="button" class="secondary-button">Reset guided facts</button>
         </div>
         <div id="status"></div>
       </div>
@@ -127,6 +130,8 @@
     let currentData = null;
     let selectedPracticeId = null;
     let explorerData = null;
+    const initialScenarioText = `A public authority wants to use an AI system to assign social scores to citizens over time based on social behaviour and predicted personality characteristics. The score may lead to detrimental treatment when people apply for public services.`;
+    let guidedAnswers = [];
     const list = (id, values) => {
       $(id).innerHTML = "";
       if (!values || !values.length) {
@@ -543,6 +548,105 @@
         li.appendChild(span);
         target.appendChild(li);
       });
+    }
+
+    function appendChat(role, html) {
+      const row = document.createElement("div");
+      row.className = `chat-message ${role}`;
+      row.innerHTML = html;
+      $("chatLog").appendChild(row);
+      $("chatLog").scrollTop = $("chatLog").scrollHeight;
+    }
+
+    function renderInitialChat() {
+      $("chatLog").innerHTML = "";
+      appendChat("assistant", `
+        <strong>Guided fact collection</strong>
+        <p>Describe the AI system. I will run the deterministic Article 5 checker and ask only for missing factual details when the ontology needs more evidence.</p>
+      `);
+    }
+
+    function currentScenarioWithGuidedFacts() {
+      const base = $("text").value.trim();
+      if (!guidedAnswers.length) return base;
+      return [
+        base,
+        "",
+        "Additional facts provided by the user:",
+        ...guidedAnswers.map((item) => `- ${item.question} ${item.answer}`)
+      ].join("\n");
+    }
+
+    function missingElementFromQuestion(question) {
+      const match = String(question || "").match(/legal element:\s*(.+?)\??$/i);
+      return match ? match[1].trim() : "";
+    }
+
+    function friendlyQuestion(rawQuestion) {
+      const element = missingElementFromQuestion(rawQuestion);
+      const normalized = element.toLowerCase();
+      const mappings = [
+        [/^targets: natural person$/, "Who is affected by the system? Are they individual people?"],
+        [/^targets: group of persons$/, "Does the system affect groups of people as a group?"],
+        [/^targets: worker$/, "Are workers or employees monitored, scored, or evaluated by the system?"],
+        [/^targets: student$/, "Are students or learners monitored, scored, or evaluated by the system?"],
+        [/^targets:/, "Who is affected by the system output?"],
+        [/^classifies person: true$/, "Does the system assign people to categories, scores, ranks, or profiles?"],
+        [/^evaluates person: true$/, "Does the system assess or judge people based on behaviour, traits, or predicted characteristics?"],
+        [/^uses profiling: true$/, "Does the system use profiling or inferred personal characteristics?"],
+        [/^occurs in context: workplace$/, "Is the system used in an employment or workplace setting?"],
+        [/^occurs in context: education institution$/, "Is the system used in a school, university, exam, course, or teaching setting?"],
+        [/^performed by: law enforcement authority$/, "Is the system used by a law-enforcement authority?"],
+        [/^uses biometric data: true$/, "Does the system process biometric data, such as face, fingerprint, iris, or voice data?"],
+        [/^uses facial images: true$/, "Does the system collect, scrape, store, or reuse facial images?"],
+        [/^infers characteristic:/, "Does the system infer sensitive personal characteristics? If yes, which ones?"],
+        [/^requires condition: strict necessity$/, "What facts show that the deployment is strictly necessary?"],
+        [/^requires condition: national law authorisation$/, "Is there a prior authorisation or clear national-law basis for this deployment?"]
+      ];
+      const found = mappings.find(([pattern]) => pattern.test(normalized));
+      return {
+        text: found ? found[1] : rawQuestion,
+        trace: element ? `Missing RDF element: ${element}` : rawQuestion
+      };
+    }
+
+    function renderFollowUpPanel(data) {
+      const questions = (data.missing_questions || []).filter((question) => question && !question.startsWith("No reviewed Article 5 ontology element"));
+      const panel = $("followUpPanel");
+      if (!questions.length) {
+        panel.hidden = true;
+        panel.innerHTML = "";
+        return;
+      }
+      panel.hidden = false;
+      panel.innerHTML = `
+        <div class="section-label">Missing factual details</div>
+        <p class="viz-note">These questions collect facts only. Legal validation remains deterministic and RDF/AKN-gated.</p>
+        ${questions.slice(0, 6).map((question, index) => {
+          const friendly = friendlyQuestion(question);
+          return `
+          <label for="followup-${index}">${escapeHtml(friendly.text)}<span class="question-trace">${escapeHtml(friendly.trace)}</span></label>
+          <textarea id="followup-${index}" class="follow-up-answer" rows="2" data-question="${escapeHtml(friendly.text)}"></textarea>
+        `;
+        }).join("")}
+        <div class="actions">
+          <button id="submitFollowUps" type="button">Add facts and re-run</button>
+        </div>
+      `;
+      $("submitFollowUps").onclick = submitFollowUps;
+    }
+
+    async function submitFollowUps() {
+      const answers = Array.from(document.querySelectorAll(".follow-up-answer"))
+        .map((field) => ({ question: field.dataset.question, answer: field.value.trim() }))
+        .filter((item) => item.answer);
+      if (!answers.length) {
+        $("status").textContent = "Add at least one factual answer before re-running.";
+        return;
+      }
+      guidedAnswers.push(...answers);
+      appendChat("user", answers.map((item) => `<p><strong>${escapeHtml(item.question)}</strong><br>${escapeHtml(item.answer)}</p>`).join(""));
+      await runAnalysis({ useGuidedFacts: true });
     }
 
     function matches(data) {
@@ -1158,7 +1262,7 @@
     window.addEventListener("hashchange", renderRoute);
     loadExplorerData().then(renderRoute);
 
-    $("analyze").onclick = async () => {
+    async function runAnalysis({ useGuidedFacts = false } = {}) {
       $("status").textContent = "Analyzing...";
       const file = $("file").files[0];
       let res;
@@ -1167,7 +1271,7 @@
         fd.append("file", file);
         res = await fetch(`/api/upload?use_llm=${$("useLlm").checked}`, { method: "POST", body: fd });
       } else {
-        res = await fetch("/api/analyze", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ text: $("text").value, use_llm: $("useLlm").checked }) });
+        res = await fetch("/api/analyze", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ text: useGuidedFacts ? currentScenarioWithGuidedFacts() : $("text").value, use_llm: $("useLlm").checked }) });
       }
       try {
         const data = await readJsonResponse(res);
@@ -1179,49 +1283,77 @@
         $("summary").textContent = data.case_summary;
         $("citizen").textContent = data.citizen_explanation;
         renderResultStats(data);
-      renderProhibitions(data.matched_prohibited_practices || []);
-      renderElementSummary(data);
-      renderExceptionSummary(data);
-      renderAnchorSummary(data);
-      renderCandidateFacts(data);
-      listRights("rights", data.possible_rights_or_interests);
-      list("questions", data.missing_questions);
-      list("notes", data.notes);
-      setupVisualTabs();
-      await renderAllVisualMaps(data);
-      $("sources").innerHTML = "";
-      if (!data.relevant_ai_act_sources.length) {
-        const li = document.createElement("li");
-        li.className = "empty-state";
-        li.textContent = "No legal source was selected because no grounded AI Act signal was detected.";
-        $("sources").appendChild(li);
-      }
-      data.relevant_ai_act_sources.forEach(s => { const li = document.createElement("li"); li.textContent = `${sourceLabel(s.article_number)}: ${s.article_heading || ""} - ${s.relevance_reason}`; $("sources").appendChild(li); });
-      $("trace").innerHTML = "";
-      if (!data.traceability.length) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 4;
-        td.className = "empty-state";
-        td.textContent = "No traceability rows were created because no grounded concept was detected.";
-        tr.appendChild(td);
-        $("trace").appendChild(tr);
-      }
-      data.traceability.forEach(t => {
-        const tr = document.createElement("tr");
-        [t.input_snippet, t.detected_concept, t.relevant_source || "", t.note].forEach((value) => {
+        renderProhibitions(data.matched_prohibited_practices || []);
+        renderElementSummary(data);
+        renderExceptionSummary(data);
+        renderAnchorSummary(data);
+        renderCandidateFacts(data);
+        listRights("rights", data.possible_rights_or_interests);
+        list("questions", data.missing_questions);
+        list("notes", data.notes);
+        renderFollowUpPanel(data);
+        appendChat("assistant", `
+          <strong>${escapeHtml(data.case_summary)}</strong>
+          ${(data.missing_questions || []).length ? `<p>I need more factual details for the deterministic checker. Please answer the questions below.</p>` : `<p>No missing factual questions were returned by the checker.</p>`}
+        `);
+        setupVisualTabs();
+        await renderAllVisualMaps(data);
+        $("sources").innerHTML = "";
+        if (!data.relevant_ai_act_sources.length) {
+          const li = document.createElement("li");
+          li.className = "empty-state";
+          li.textContent = "No legal source was selected because no grounded AI Act signal was detected.";
+          $("sources").appendChild(li);
+        }
+        data.relevant_ai_act_sources.forEach(s => { const li = document.createElement("li"); li.textContent = `${sourceLabel(s.article_number)}: ${s.article_heading || ""} - ${s.relevance_reason}`; $("sources").appendChild(li); });
+        $("trace").innerHTML = "";
+        if (!data.traceability.length) {
+          const tr = document.createElement("tr");
           const td = document.createElement("td");
-          td.textContent = value;
+          td.colSpan = 4;
+          td.className = "empty-state";
+          td.textContent = "No traceability rows were created because no grounded concept was detected.";
           tr.appendChild(td);
+          $("trace").appendChild(tr);
+        }
+        data.traceability.forEach(t => {
+          const tr = document.createElement("tr");
+          [t.input_snippet, t.detected_concept, t.relevant_source || "", t.note].forEach((value) => {
+            const td = document.createElement("td");
+            td.textContent = value;
+            tr.appendChild(td);
+          });
+          $("trace").appendChild(tr);
         });
-        $("trace").appendChild(tr);
-      });
-      $("raw").textContent = JSON.stringify(data, null, 2);
+        $("raw").textContent = JSON.stringify(data, null, 2);
       } catch (error) {
         console.error(error);
         $("status").textContent = error.message || "The API response could not be parsed as JSON.";
       }
+    }
+
+    $("analyze").onclick = async () => {
+      guidedAnswers = [];
+      renderInitialChat();
+      const file = $("file").files[0];
+      if (file) {
+        $("text").value = await file.text();
+        $("file").value = "";
+      }
+      appendChat("user", `<p>${escapeHtml($("text").value.trim())}</p>`);
+      await runAnalysis();
     };
+
+    $("resetChat").onclick = () => {
+      guidedAnswers = [];
+      $("text").value = initialScenarioText;
+      $("followUpPanel").hidden = true;
+      $("followUpPanel").innerHTML = "";
+      $("status").textContent = "";
+      renderInitialChat();
+    };
+
+    renderInitialChat();
   </script>
 </body>
 </html>
