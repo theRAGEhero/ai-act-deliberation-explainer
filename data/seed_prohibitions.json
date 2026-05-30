@@ -1,0 +1,108 @@
+{
+  "article_5_prohibited_practices": [
+    {
+      "id": "manipulative_or_deceptive_techniques",
+      "label": "Subliminal, manipulative or deceptive techniques",
+      "article_point": "5(1)(a)",
+      "keywords": ["subliminal", "manipulative", "deceptive", "distort behaviour", "distort behavior", "impair informed decision", "materially distort", "significant harm"],
+      "minimum_matches": 2,
+      "targets": ["person", "group of persons"],
+      "contexts": ["placing on the market", "putting into service", "use of an AI system"],
+      "trigger_conditions": ["subliminal techniques beyond a person's consciousness or purposefully manipulative or deceptive techniques", "objective or effect of materially distorting behaviour", "appreciably impairs ability to make an informed decision", "causes or is reasonably likely to cause significant harm"],
+      "exceptions": [],
+      "affected_rights": ["autonomy of decision", "human dignity", "mental integrity", "consumer protection"],
+      "safeguards": []
+    },
+    {
+      "id": "vulnerability_exploitation",
+      "label": "Exploitation of vulnerabilities",
+      "article_point": "5(1)(b)",
+      "keywords": ["vulnerabilities", "vulnerability", "age", "disability", "social or economic situation", "exploit", "vulnerable", "children", "elderly", "low-income", "significant harm"],
+      "minimum_matches": 2,
+      "targets": ["natural person", "specific group of persons"],
+      "contexts": ["age", "disability", "specific social or economic situation"],
+      "trigger_conditions": ["exploits vulnerabilities due to age, disability, or social/economic situation", "objective or effect of materially distorting behaviour", "causes or is reasonably likely to cause significant harm"],
+      "exceptions": [],
+      "affected_rights": ["human dignity", "non-discrimination", "autonomy of decision", "protection of vulnerable persons"],
+      "safeguards": []
+    },
+    {
+      "id": "social_scoring",
+      "label": "Social scoring leading to detrimental treatment",
+      "article_point": "5(1)(c)",
+      "keywords": ["social score", "social scoring", "classify persons", "classification of natural persons", "social behaviour", "social behavior", "personality characteristics", "unfavourable treatment", "unfavorable treatment", "detrimental treatment", "disproportionate"],
+      "minimum_matches": 1,
+      "targets": ["natural persons", "groups of persons"],
+      "contexts": ["evaluation or classification over a period of time"],
+      "trigger_conditions": ["evaluation or classification based on social behaviour or known, inferred or predicted personal/personality characteristics", "social score leads to detrimental or unfavourable treatment", "treatment is unrelated, unjustified, or disproportionate"],
+      "exceptions": [],
+      "affected_rights": ["non-discrimination", "human dignity", "privacy", "fair treatment"],
+      "safeguards": []
+    },
+    {
+      "id": "criminal_risk_assessment_profiling",
+      "label": "Criminal offence risk assessment based solely on profiling",
+      "article_point": "5(1)(d)",
+      "keywords": ["criminal offence", "criminal offense", "commit a crime", "risk assessment", "predict crime", "profiling", "personality traits", "criminal risk"],
+      "minimum_matches": 2,
+      "targets": ["natural persons"],
+      "contexts": ["law enforcement", "criminal offence risk assessment"],
+      "trigger_conditions": ["AI system assesses or predicts risk of a natural person committing a criminal offence", "based solely on profiling or personality traits and characteristics"],
+      "exceptions": ["AI systems used to support human assessment of involvement in criminal activity based on objective and verifiable facts directly linked to criminal activity"],
+      "affected_rights": ["presumption of innocence", "due process", "non-discrimination", "privacy"],
+      "safeguards": ["human assessment", "objective and verifiable facts directly linked to criminal activity"]
+    },
+    {
+      "id": "untargeted_facial_scraping",
+      "label": "Untargeted scraping for facial recognition databases",
+      "article_point": "5(1)(e)",
+      "keywords": ["scrape facial images", "untargeted scraping", "facial recognition database", "internet", "cctv footage", "expand facial recognition"],
+      "minimum_matches": 2,
+      "targets": ["facial images", "natural persons"],
+      "contexts": ["internet", "CCTV footage", "facial recognition databases"],
+      "trigger_conditions": ["AI system creates or expands facial recognition databases", "untargeted scraping of facial images from the internet or CCTV footage"],
+      "exceptions": [],
+      "affected_rights": ["privacy", "data protection", "human dignity"],
+      "safeguards": []
+    },
+    {
+      "id": "emotion_recognition_workplace_education",
+      "label": "Emotion recognition in workplace or education",
+      "article_point": "5(1)(f)",
+      "keywords": ["emotion recognition", "infer emotions", "workplace", "education", "school", "university", "employee emotions", "student emotions"],
+      "minimum_matches": 2,
+      "targets": ["natural person"],
+      "contexts": ["workplace", "education institutions"],
+      "trigger_conditions": ["AI system infers emotions of a natural person", "use occurs in workplace or education institutions"],
+      "exceptions": ["medical reasons", "safety reasons"],
+      "affected_rights": ["privacy", "data protection", "human dignity", "workers' rights", "education rights"],
+      "safeguards": ["medical or safety purpose exception"]
+    },
+    {
+      "id": "biometric_categorisation_sensitive_traits",
+      "label": "Biometric categorisation to infer sensitive traits",
+      "article_point": "5(1)(g)",
+      "keywords": ["biometric categorisation", "biometric categorization", "infer race", "political opinions", "trade union", "religious beliefs", "philosophical beliefs", "sex life", "sexual orientation", "biometric data"],
+      "minimum_matches": 1,
+      "targets": ["natural persons"],
+      "contexts": ["biometric categorisation systems"],
+      "trigger_conditions": ["categorises individually natural persons based on biometric data", "deduces or infers sensitive traits listed in Article 5(1)(g)"],
+      "exceptions": ["labelling or filtering of lawfully acquired biometric datasets based on biometric data", "categorising biometric data in law enforcement"],
+      "affected_rights": ["privacy", "data protection", "non-discrimination", "human dignity"],
+      "safeguards": ["lawfully acquired biometric datasets exception", "law enforcement categorisation exception"]
+    },
+    {
+      "id": "realtime_remote_biometric_identification_law_enforcement",
+      "label": "Real-time remote biometric identification in public spaces for law enforcement",
+      "article_point": "5(1)(h)",
+      "keywords": ["real-time remote biometric identification", "remote biometric identification", "publicly accessible spaces", "law enforcement", "face recognition in public", "live facial recognition"],
+      "minimum_matches": 2,
+      "targets": ["natural persons in publicly accessible spaces"],
+      "contexts": ["law enforcement", "publicly accessible spaces", "real-time remote biometric identification"],
+      "trigger_conditions": ["use of real-time remote biometric identification systems", "publicly accessible spaces", "law enforcement purpose"],
+      "exceptions": ["targeted search for specific victims of abduction, trafficking in human beings or sexual exploitation, and missing persons", "prevention of a specific, substantial and imminent threat to life or physical safety or a terrorist attack", "localisation or identification of a person suspected of listed serious criminal offences punishable by at least four years"],
+      "affected_rights": ["privacy", "data protection", "freedom of assembly", "non-discrimination", "human dignity"],
+      "safeguards": ["strict necessity", "prior authorisation by judicial or independent administrative authority", "notification to market surveillance and data protection authorities", "national law conditions"]
+    }
+  ]
+}

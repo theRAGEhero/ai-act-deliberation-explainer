@@ -3,18 +3,18 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from app.legal_source.article_selector import source_refs_for_concepts
-from app.models import CaseInput, DetectedItem, LegalSourceRef, PreliminaryAnalysis, TraceabilityItem
+from app.models import CaseInput, DetectedItem, LegalSourceRef, PreliminaryAnalysis, ProhibitedPracticeMatch, TraceabilityItem
 
 
 def _load_json(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    return json.loads(path.read_text(encoding="utf-8")) if path and path.exists() and path.is_file() else {}
 
 
 class RuleEngine:
-    def __init__(self, seed_annexes_path: Path, seed_concepts_path: Path):
+    def __init__(self, seed_annexes_path: Path, seed_concepts_path: Path, seed_prohibitions_path: Path | None = None):
         self.annex = _load_json(seed_annexes_path).get("annex_iii", [])
         self.seed = _load_json(seed_concepts_path)
+        self.prohibitions = _load_json(seed_prohibitions_path or Path()).get("article_5_prohibited_practices", [])
 
     def analyze(self, case_input: CaseInput, legal_db, ontology_store=None) -> PreliminaryAnalysis:
         text = case_input.raw_text.lower()
@@ -22,16 +22,35 @@ class RuleEngine:
         contexts = self._detect_contexts(text)
         functions = self._detect_functions(text)
         actors = self._detect_actors(text)
-        risks = self._detect_risks(text, contexts, functions)
-        rights = self._detect_rights(text, contexts, risks)
-        obligations = self._detect_obligations(contexts, functions, risks, actors)
-        questions = self._missing_questions(contexts, functions, risks)
-        concepts = [item.label for group in [contexts, functions, risks, rights, obligations] for item in group]
-        sources = source_refs_for_concepts(concepts + ["definitions"], legal_db)
-        sources = self._add_annex_source_if_needed(contexts, sources)
-        trace = self._trace(claims, contexts + functions + risks + rights + obligations, sources)
+        prohibition_matches = self._detect_prohibited_practices(text)
+        risks = self._detect_risks(text, prohibition_matches)
+        if not self._has_ai_act_signal(text, contexts, functions, risks, prohibition_matches):
+            return PreliminaryAnalysis(
+                case_summary="No sufficient AI Act signal was detected in the submitted text.",
+                matched_prohibited_practices=[],
+                detected_actors=actors,
+                detected_contexts=[],
+                detected_ai_functions=[],
+                possible_risks=[],
+                possible_rights_or_interests=[],
+                obligations_to_verify=[],
+                missing_questions=[
+                    "Does the text describe an AI system or an automated system?",
+                    "What output does the system produce, such as a prediction, recommendation, ranking, score, decision or generated content?",
+                    "Who uses the system, and who may be affected by its output?",
+                ],
+                relevant_ai_act_sources=[],
+                traceability=[],
+                notes=["The input did not contain enough evidence for the rule engine to map AI Act concepts."],
+            )
+        rights = self._rights_from_matches(prohibition_matches)
+        obligations = self._obligations_from_matches(prohibition_matches)
+        questions = self._article_5_missing_questions(prohibition_matches)
+        sources = self._article_5_sources(legal_db)
+        trace = self._trace(claims, contexts + functions + risks + rights + obligations, sources, prohibition_matches)
         return PreliminaryAnalysis(
-            case_summary=self._summary(case_input.raw_text, contexts, functions),
+            case_summary=self._summary(case_input.raw_text, contexts, functions, prohibition_matches),
+            matched_prohibited_practices=prohibition_matches,
             detected_actors=actors,
             detected_contexts=contexts,
             detected_ai_functions=functions,
@@ -41,8 +60,19 @@ class RuleEngine:
             missing_questions=questions,
             relevant_ai_act_sources=sources,
             traceability=trace,
-            notes=["All findings are preliminary risk signals and require human legal review."],
+            notes=["The deterministic scope is limited to Article 5 prohibited AI practices and requires human legal review."],
         )
+
+    def _has_ai_act_signal(
+        self,
+        text: str,
+        contexts: list[DetectedItem],
+        functions: list[DetectedItem],
+        risks: list[DetectedItem],
+        matches: list[ProhibitedPracticeMatch],
+    ) -> bool:
+        ai_terms = ["ai", "artificial intelligence", "algorithm", "model", "automated", "machine learning", "llm", "chatbot"]
+        return bool(matches or functions or (contexts and any(term in text for term in ai_terms)) or (risks and any(term in text for term in ai_terms)))
 
     def _detect_contexts(self, text: str) -> list[DetectedItem]:
         context_terms = {
@@ -85,77 +115,119 @@ class RuleEngine:
             "affected person": ["candidate", "citizen", "student", "applicant", "worker", "patient", "beneficiary", "tenant"],
         }
         actors = self._match_items(text, terms, "actor")
-        if not any(actor.label == "provider" for actor in actors):
+        if actors and not any(actor.label == "provider" for actor in actors):
             actors.append(DetectedItem(label="provider", category="actor", evidence=[], confidence=0.25, status="unknown / to verify"))
         return actors
 
-    def _detect_risks(self, text: str, contexts: list[DetectedItem], functions: list[DetectedItem]) -> list[DetectedItem]:
-        terms = {
-            "bias": ["historical data", "training data", "demographic", "minority", "gender", "race", "discrimination", "welfare data"],
-            "opacity": ["black box", "not explainable", "no explanation", "hidden score", "will not see", "not see the score"],
-            "automation bias": ["human always follows", "final decision human", "human officer", "score used", "recommendation strongly influences"],
-            "weak contestability": ["no appeal", "no challenge", "no review", "cannot contest", "will not see the score"],
-            "lack of disclosure": ["not told ai", "not informed", "without disclosure"],
-            "vulnerable group impact": ["minors", "migrants", "disabled", "low-income", "minorities", "women", "welfare", "housing"],
-        }
-        risks = self._match_items(text, terms, "risk")
-        labels = {risk.label for risk in risks}
-        if any(fn.label in {"ranking", "scoring", "automated decision"} for fn in functions) and "automation bias" not in labels:
-            risks.append(DetectedItem(label="automation bias", category="risk", evidence=["ranking/scoring used in decision workflow"], confidence=0.55))
-        if contexts and any("Annex III" == item.category for item in contexts) and "fundamental rights impact" not in labels:
-            risks.append(DetectedItem(label="fundamental rights impact to verify", category="risk", evidence=["Annex III area signal"], confidence=0.55))
-        return risks
+    def _detect_prohibited_practices(self, text: str) -> list[ProhibitedPracticeMatch]:
+        matches = []
+        for rule in self.prohibitions:
+            keywords = rule.get("keywords", [])
+            evidence = [term for term in keywords if term.lower() in text]
+            if len(evidence) < int(rule.get("minimum_matches", 2)):
+                continue
+            matches.append(
+                ProhibitedPracticeMatch(
+                    id=rule["id"],
+                    label=rule["label"],
+                    article_point=rule["article_point"],
+                    targets=list(rule.get("targets", [])),
+                    contexts=list(rule.get("contexts", [])),
+                    exceptions=list(rule.get("exceptions", [])),
+                    affected_rights=list(rule.get("affected_rights", [])),
+                    safeguards=list(rule.get("safeguards", [])),
+                    trigger_conditions=list(rule.get("trigger_conditions", [])),
+                    evidence=evidence[:8],
+                    confidence=min(0.95, 0.55 + len(evidence) * 0.08),
+                    status="Article 5 match to verify",
+                )
+            )
+        return matches
 
-    def _detect_rights(self, text: str, contexts: list[DetectedItem], risks: list[DetectedItem]) -> list[DetectedItem]:
-        labels = {"transparency", "non-discrimination", "human oversight", "contestability", "human explanation"}
-        if any("housing" in c.label or "public" in c.label for c in contexts):
-            labels.add("access to essential public services")
-        if any("employment" in c.label.lower() for c in contexts):
-            labels.add("access to employment opportunity")
-        if "privacy" in text or "data" in text:
-            labels.add("privacy/data protection")
-        return [DetectedItem(label=label, category="right_or_interest", confidence=0.6) for label in sorted(labels)]
+    def _detect_risks(self, text: str, matches: list[ProhibitedPracticeMatch]) -> list[DetectedItem]:
+        return [
+            DetectedItem(
+                label=match.label,
+                category="Article 5 prohibited-practice risk",
+                evidence=match.evidence,
+                confidence=match.confidence,
+                status="to verify",
+            )
+            for match in matches
+        ]
 
-    def _detect_obligations(self, contexts, functions, risks, actors) -> list[DetectedItem]:
-        labels = {"inform deployer", "ensure human oversight", "allow meaningful human review"}
-        if any(r.label in {"opacity", "lack of disclosure"} for r in risks):
-            labels.add("inform affected person")
-        if any(fn.label in {"ranking", "scoring", "automated decision"} for fn in functions):
-            labels.update({"keep logs", "maintain technical documentation", "provide instructions for use"})
-        if any("Annex III" == c.category or "public services" in c.label for c in contexts):
-            labels.add("assess fundamental rights impact")
-        if any(fn.label == "chatbot interaction" for fn in functions):
-            labels.add("disclose chatbot interaction")
-        if any(fn.label == "content generation" for fn in functions):
-            labels.add("disclose AI-generated content")
-        return [DetectedItem(label=label, category="obligation_to_verify", confidence=0.55, status="to verify") for label in sorted(labels)]
+    def _rights_from_matches(self, matches: list[ProhibitedPracticeMatch]) -> list[DetectedItem]:
+        labels = []
+        for match in matches:
+            for right in match.affected_rights:
+                if right not in labels:
+                    labels.append(right)
+        return [DetectedItem(label=label, category="right_or_interest", confidence=0.7, status="mapped from Article 5 rule") for label in labels]
 
-    def _missing_questions(self, contexts, functions, risks) -> list[str]:
+    def _obligations_from_matches(self, matches: list[ProhibitedPracticeMatch]) -> list[DetectedItem]:
+        if not matches:
+            return []
+        labels = ["verify Article 5 prohibition criteria", "check whether any Article 5 exception applies"]
+        if any(match.safeguards for match in matches):
+            labels.append("verify safeguards defined in the matched Article 5 rule")
+        return [DetectedItem(label=label, category="obligation_to_verify", confidence=0.65, status="to verify") for label in labels]
+
+    def _article_5_missing_questions(self, matches: list[ProhibitedPracticeMatch]) -> list[str]:
         questions = {
-            "What data is used, and what is its provenance?",
-            "Can the affected person understand and contest the result?",
-            "Can the human operator meaningfully override the AI output?",
-            "Who is the provider and who is the deployer?",
-            "Is the AI system used to rank, filter, score or otherwise influence access to an opportunity or service?",
+            "Which Article 5 prohibited-practice point, if any, is being assessed?",
+            "What evidence shows that each trigger condition of the suspected Article 5 rule is met?",
+            "Are any Article 5 exceptions or safeguards explicitly applicable?",
+            "Who is the provider, deployer and affected natural person or group?",
         }
-        for area in self.annex:
-            if any(area["label"] == c.label or area["id"] in c.label.lower() for c in contexts):
-                questions.update(area.get("missing_questions", []))
-        if any("vulnerable" in risk.label for risk in risks):
-            questions.add("Are vulnerable groups affected, and how is that assessed?")
-        if any("public services" in c.label for c in contexts):
-            questions.add("Is a fundamental rights impact assessment required for the public-sector deployer?")
+        if not matches:
+            questions.add("Does the scenario involve any Article 5 practice such as social scoring, prohibited biometric use, manipulative techniques or exploitation of vulnerabilities?")
         return sorted(questions)
 
-    def _summary(self, text, contexts, functions) -> str:
+    def _summary(self, text, contexts, functions, matches) -> str:
+        if matches:
+            points = ", ".join(f"Article {match.article_point}" for match in matches[:3])
+            return f"The scenario contains signals for Article 5 prohibited AI practice review under {points}."
         ctx = contexts[0].label if contexts else "an unspecified context"
         fn = functions[0].label if functions else "AI-supported processing"
-        if "municipality" in text.lower() and "housing" in text.lower():
-            return "A public body is discussing an AI ranking system for access to social housing."
-        return f"The scenario describes possible {fn} in {ctx}; AI Act relevance should be verified."
+        return f"The scenario describes possible {fn} in {ctx}, but no Article 5 prohibited-practice match was detected by the deterministic rules."
 
-    def _trace(self, claims, items, sources) -> list[TraceabilityItem]:
+    def _article_5_sources(self, legal_db) -> list[LegalSourceRef]:
+        article = legal_db.get_article_by_number("5")
+        if not article:
+            return [
+                LegalSourceRef(
+                    article_number="5",
+                    article_heading="Prohibited AI practices",
+                    eId=None,
+                    short_excerpt="Article 5 source was not available in the loaded legal corpus.",
+                    relevance_reason="The checker is scoped to Article 5 prohibited AI practices.",
+                )
+            ]
+        return [
+            LegalSourceRef(
+                article_number=article.number,
+                article_heading=article.heading,
+                eId=article.eId,
+                short_excerpt=article.text[:700],
+                relevance_reason="The checker is scoped to Article 5 prohibited AI practices.",
+            )
+        ]
+
+    def _trace(self, claims, items, sources, matches: list[ProhibitedPracticeMatch]) -> list[TraceabilityItem]:
         traces = []
+        for match in matches:
+            snippet = next((claim for claim in claims if any(ev.lower() in claim.lower() for ev in match.evidence)), claims[0] if claims else "")
+            traces.append(
+                TraceabilityItem(
+                    input_snippet=snippet[:240],
+                    detected_concept=match.label,
+                    mapped_risk=match.label,
+                    mapped_right_or_interest=", ".join(match.affected_rights) or None,
+                    relevant_source=f"Article {match.article_point}",
+                    confidence=match.confidence,
+                    note="Matched fields use only the explicit Article 5 prohibition mapping; legal review is required.",
+                )
+            )
         for item in items[:20]:
             snippet = next((claim for claim in claims if any(ev.lower() in claim.lower() for ev in item.evidence)), claims[0] if claims else "")
             source_label = self._sources_for_item(item, sources)
@@ -172,60 +244,8 @@ class RuleEngine:
             )
         return traces
 
-    def _add_annex_source_if_needed(self, contexts: list[DetectedItem], sources) -> list[LegalSourceRef]:
-        has_annex_signal = any(context.category == "Annex III area" or "public services" in context.label for context in contexts)
-        if not has_annex_signal:
-            return sources
-        return sources + [
-            LegalSourceRef(
-                article_number="Annex III",
-                article_heading="High-risk areas signalled by seeded Annex III taxonomy",
-                eId=None,
-                short_excerpt="Seeded Annex III area signal used for preliminary high-risk classification discussion.",
-                relevance_reason="The scenario contains keywords associated with an Annex III high-risk area; classification remains to verify.",
-            )
-        ]
-
     def _sources_for_item(self, item: DetectedItem, sources) -> str:
-        label = item.label.lower()
-        wanted = ["3"]
-        if item.category in {"context", "Annex III area"}:
-            wanted += ["6", "Annex III", "27"]
-        if item.category == "AI function":
-            wanted += ["6", "13", "14", "86"]
-        if item.category == "risk":
-            if "bias" in label or "vulnerable" in label:
-                wanted += ["10", "27"]
-            if "opacity" in label or "contestability" in label:
-                wanted += ["13", "86"]
-            if "automation" in label:
-                wanted += ["14", "26"]
-        if item.category == "right_or_interest":
-            if "transparency" in label:
-                wanted += ["13"]
-            if "oversight" in label:
-                wanted += ["14"]
-            if "explanation" in label or "contestability" in label:
-                wanted += ["86"]
-            if "non-discrimination" in label or "essential" in label:
-                wanted += ["6", "27", "Annex III"]
-        if item.category == "obligation_to_verify":
-            if "impact" in label:
-                wanted += ["27"]
-            if "oversight" in label or "review" in label:
-                wanted += ["14", "26"]
-            if "logs" in label:
-                wanted += ["12"]
-            if "documentation" in label:
-                wanted += ["11"]
-            if "instructions" in label or "inform" in label:
-                wanted += ["13", "26"]
-        available = {source.article_number for source in sources}
-        labels = []
-        for number in wanted:
-            if number in available:
-                labels.append(number if number == "Annex III" else f"Article {number}")
-        return ", ".join(dict.fromkeys(labels)) or "AI Act source to verify"
+        return "Article 5" if sources else "Article 5 source to verify"
 
     def _match_items(self, text: str, mapping: dict[str, list[str]], category: str) -> list[DetectedItem]:
         found = []

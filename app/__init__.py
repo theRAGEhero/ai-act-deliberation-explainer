@@ -1,1 +1,1 @@
-"""AI Act Deliberation Explainer backend."""
+"""AI Act Prohibitions Checker backend."""

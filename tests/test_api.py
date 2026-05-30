@@ -1,26 +1,37 @@
-from fastapi.testclient import TestClient
+from pathlib import Path
 
-from app.main import app
+import pytest
+from pydantic import ValidationError
 
-
-client = TestClient(app)
+from app.main import analyze, health
+from app.models import MAX_TEXT_LENGTH, CaseInputRequest
 
 
 def test_health():
-    res = client.get("/api/health")
-    assert res.status_code == 200
-    assert res.json()["status"] == "ok"
+    assert health()["status"] == "ok"
 
 
 def test_index():
-    res = client.get("/")
-    assert res.status_code == 200
-    assert "AI Act Deliberation Explainer" in res.text
+    assert "AI Act Prohibitions Checker" in Path("app/templates/index.html").read_text(encoding="utf-8")
 
 
 def test_analyze():
-    res = client.post("/api/analyze", json={"text": "Municipality X wants to use an AI system to rank social housing applications. The model uses historical welfare data. A human officer can approve the final decision, but applicants will not see the score."})
-    assert res.status_code == 200
-    data = res.json()
+    response = analyze(CaseInputRequest(text="A public authority uses an AI system for social scoring based on social behaviour and personality characteristics, causing detrimental treatment in access to services."))
+    data = response.model_dump()
     assert "preliminary legal-design analysis" in data["disclaimer"]
-    assert any(r["label"] == "opacity" for r in data["possible_risks"])
+    assert data["matched_prohibited_practices"][0]["id"] == "social_scoring"
+    assert {source["article_number"] for source in data["relevant_ai_act_sources"]} == {"5"}
+
+
+def test_weak_input_does_not_create_legal_map():
+    response = analyze(CaseInputRequest(text="test"))
+    assert response.relevant_ai_act_sources == []
+    assert response.matched_prohibited_practices == []
+    assert response.possible_rights_or_interests == []
+    assert response.obligations_to_verify == []
+    assert response.traceability == []
+
+
+def test_input_length_is_limited():
+    with pytest.raises(ValidationError):
+        CaseInputRequest(text="x" * (MAX_TEXT_LENGTH + 1))

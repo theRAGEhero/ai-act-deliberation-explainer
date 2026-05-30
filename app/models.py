@@ -2,6 +2,11 @@ from pydantic import BaseModel, Field
 from typing import Any
 
 
+MAX_TEXT_LENGTH = 20000
+MAX_TITLE_LENGTH = 160
+MAX_PERSONA_LENGTH = 80
+
+
 class LegalParagraph(BaseModel):
     eId: str | None = None
     number: str | None = None
@@ -41,9 +46,9 @@ class CaseInput(BaseModel):
 
 
 class CaseInputRequest(BaseModel):
-    title: str | None = None
-    text: str
-    persona: str | None = "citizen"
+    title: str | None = Field(default=None, max_length=MAX_TITLE_LENGTH)
+    text: str = Field(min_length=1, max_length=MAX_TEXT_LENGTH)
+    persona: str | None = Field(default="citizen", max_length=MAX_PERSONA_LENGTH)
     use_llm: bool = False
 
 
@@ -73,8 +78,24 @@ class DetectedItem(BaseModel):
     status: str = "possible"
 
 
+class ProhibitedPracticeMatch(BaseModel):
+    id: str
+    label: str
+    article_point: str
+    targets: list[str] = Field(default_factory=list)
+    contexts: list[str] = Field(default_factory=list)
+    exceptions: list[str] = Field(default_factory=list)
+    affected_rights: list[str] = Field(default_factory=list)
+    safeguards: list[str] = Field(default_factory=list)
+    trigger_conditions: list[str] = Field(default_factory=list)
+    evidence: list[str] = Field(default_factory=list)
+    confidence: float = 0.6
+    status: str = "possible"
+
+
 class PreliminaryAnalysis(BaseModel):
     case_summary: str
+    matched_prohibited_practices: list[ProhibitedPracticeMatch] = Field(default_factory=list)
     detected_actors: list[DetectedItem] = Field(default_factory=list)
     detected_contexts: list[DetectedItem] = Field(default_factory=list)
     detected_ai_functions: list[DetectedItem] = Field(default_factory=list)
@@ -94,6 +115,7 @@ class GraphView(BaseModel):
 
 class AnalysisResponse(BaseModel):
     case_summary: str
+    matched_prohibited_practices: list[ProhibitedPracticeMatch] = Field(default_factory=list)
     detected_actors: list[DetectedItem]
     detected_contexts: list[DetectedItem]
     detected_ai_functions: list[DetectedItem]
