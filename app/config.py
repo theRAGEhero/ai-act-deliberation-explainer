@@ -8,7 +8,11 @@ load_dotenv()
 
 class Settings(BaseModel):
     project_root: Path = Path(__file__).resolve().parent.parent
-    ai_act_akn_path: Path = Path(os.getenv("AI_ACT_AKN_PATH", "data/aiACT.xml"))
+    ai_act_akn_path: Path = Path(os.getenv("AI_ACT_AKN_PATH", "reference/akoma-ntoso/aiAct-2024-1689.xml"))
+    akomantoso_xsd_path: Path = Path(os.getenv("AKOMANTOSO_XSD_PATH", "reference/akoma-ntoso/akomantoso30.xsd"))
+    xml_xsd_path: Path = Path(os.getenv("XML_XSD_PATH", "reference/akoma-ntoso/xml.xsd"))
+    akomantoso_reference_path: Path | None = Path(os.getenv("AKOMANTOSO_REFERENCE_PATH", "reference/akoma-ntoso/akomantoso30.xml"))
+    legal_ontology_dir: Path = Path(os.getenv("LEGAL_ONTOLOGY_DIR", "data/ontology"))
     seed_concepts_path: Path = Path("data/seed_concepts.json")
     seed_annexes_path: Path = Path("data/seed_annexes.json")
     seed_prohibitions_path: Path = Path("data/seed_prohibitions.json")

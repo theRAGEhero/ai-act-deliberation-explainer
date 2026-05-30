@@ -28,6 +28,155 @@ pre { overflow: auto; max-height: 460px; background: #101828; color: #d1e7ff; pa
 .viz-chip.obligation { background: #fef3c7; border-color: #f59e0b; color: #78350f; }
 .viz-chip.muted { background: #f1f5f9; border-color: #cbd5e1; color: #475569; }
 .chip-list { display: flex; flex-wrap: wrap; gap: 2px; }
+.icon-list {
+  list-style: none;
+  padding-left: 0;
+  display: grid;
+  gap: 8px;
+}
+.right-list-item {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+  margin: 0;
+}
+.right-list-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  border: 1px solid #dbe3ee;
+  border-radius: 6px;
+  background: #fff;
+  padding: 3px;
+}
+.right-chip {
+  gap: 5px;
+}
+.right-chip-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  padding: 3px 6px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: .74rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+.status-supported,
+.status-current_binding_law {
+  background: #edf8f2;
+  border-color: #9bcab5;
+  color: var(--green);
+}
+.status-missing,
+.status-source_anchor_missing {
+  background: #fff8ee;
+  border-color: #dfbd75;
+  color: var(--amber);
+}
+.status-uncertain,
+.status-exception_possible,
+.status-ontology_element_review {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: var(--blue);
+}
+.status-proposed_or_amending_material,
+.status-mixed_current_and_amending_material {
+  background: #fff7e8;
+  border-color: #dfbd75;
+  color: var(--amber);
+}
+.law-status {
+  margin: -3px 0 8px;
+}
+.ontology-details {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  border-top: 1px solid var(--rule);
+  padding-top: 12px;
+}
+.ontology-subsection {
+  display: grid;
+  gap: 8px;
+}
+.ontology-subsection > strong {
+  color: #111827;
+  font-size: .82rem;
+}
+.ontology-grid .card {
+  min-height: 185px;
+}
+.ontology-list {
+  display: grid;
+  gap: 8px;
+}
+.ontology-list-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+  font-size: .84rem;
+}
+.ontology-list-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.ontology-list-row strong,
+.ontology-list-row span {
+  display: block;
+}
+.ontology-list-row span {
+  color: var(--muted);
+  font-size: .78rem;
+  margin-top: 2px;
+}
+.element-table {
+  display: grid;
+  border: 1px solid var(--rule);
+}
+.element-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.1fr) 145px minmax(220px, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 8px;
+  border-bottom: 1px solid var(--rule);
+  font-size: .84rem;
+}
+.element-row:last-child {
+  border-bottom: 0;
+}
+.exception-list {
+  display: grid;
+  gap: 8px;
+}
+.exception-row {
+  border: 1px solid var(--rule);
+  padding: 8px;
+  font-size: .84rem;
+}
+.exception-row > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
 .flow-list { display: grid; gap: 10px; }
 .flow-row { display: grid; grid-template-columns: minmax(180px, 1.15fr) 24px minmax(140px, .7fr) 24px minmax(160px, .8fr); gap: 8px; align-items: center; }
 .flow-box { border: 1px solid #d8dee8; border-radius: 8px; padding: 10px; min-height: 42px; background: #fff; font-size: .86rem; }
@@ -74,11 +223,15 @@ pre { overflow: auto; max-height: 460px; background: #101828; color: #d1e7ff; pa
 .edge-article { stroke: #8b5cf6; }
 .edge-actor { stroke: #0ea5e9; }
 .edge-prohibition { stroke: #be123c; }
+.edge-element { stroke: #0891b2; }
+.edge-exception { stroke: #ea580c; }
 .graph-node { cursor: pointer; outline: none; }
 .graph-node circle { stroke-width: 2; filter: drop-shadow(0 6px 12px rgba(15, 23, 42, .1)); transition: stroke-width .15s ease, filter .15s ease; }
 .graph-node text { font-size: 13.5px; font-weight: 750; pointer-events: none; dominant-baseline: middle; }
 .node-article text { font-size: 12.5px; }
 .node-obligation text { font-size: 12.5px; }
+.node-element text,
+.node-exception text { font-size: 11.8px; }
 .node-scenario text { font-size: 15px; }
 .node-scenario circle { stroke-width: 2.7; }
 .graph-node:hover circle,
@@ -516,6 +669,9 @@ pre {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .prohibition-grid {
+    grid-template-columns: 1fr;
+  }
+  .element-row {
     grid-template-columns: 1fr;
   }
 }

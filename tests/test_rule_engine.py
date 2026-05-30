@@ -7,7 +7,7 @@ from app.legal_source.legal_db import LegalKnowledgeDB
 
 def test_rule_engine_employment_ranking():
     db = LegalKnowledgeDB(Path("data/seed_concepts.json"))
-    db.load_from_akn(Path("data/aiACT.xml"))
+    db.load_from_akn(Path("reference/akoma-ntoso/aiAct-2024-1689.xml"))
     engine = RuleEngine(Path("data/seed_annexes.json"), Path("data/seed_concepts.json"), Path("data/seed_prohibitions.json"))
     case = build_case_input("We use AI to rank candidates for jobs using historical data. A human makes the final decision.")
     result = engine.analyze(case, db)
@@ -23,7 +23,7 @@ def test_rule_engine_employment_ranking():
 
 def test_rule_engine_social_scoring_uses_article_5_mapping():
     db = LegalKnowledgeDB(Path("data/seed_concepts.json"))
-    db.load_from_akn(Path("data/aiACT.xml"))
+    db.load_from_akn(Path("reference/akoma-ntoso/aiAct-2024-1689.xml"))
     engine = RuleEngine(Path("data/seed_annexes.json"), Path("data/seed_concepts.json"), Path("data/seed_prohibitions.json"))
     text = (
         "The authority uses an AI system for social scoring over time based on social behaviour "
@@ -41,7 +41,7 @@ def test_rule_engine_social_scoring_uses_article_5_mapping():
 
 def test_rule_engine_workplace_emotion_includes_defined_exception():
     db = LegalKnowledgeDB(Path("data/seed_concepts.json"))
-    db.load_from_akn(Path("data/aiACT.xml"))
+    db.load_from_akn(Path("reference/akoma-ntoso/aiAct-2024-1689.xml"))
     engine = RuleEngine(Path("data/seed_annexes.json"), Path("data/seed_concepts.json"), Path("data/seed_prohibitions.json"))
     result = engine.analyze(build_case_input("An AI emotion recognition system will infer emotions of employees in the workplace."), db)
     assert [match.id for match in result.matched_prohibited_practices] == ["emotion_recognition_workplace_education"]
@@ -50,7 +50,7 @@ def test_rule_engine_workplace_emotion_includes_defined_exception():
 
 def test_rule_engine_no_signal():
     db = LegalKnowledgeDB(Path("data/seed_concepts.json"))
-    db.load_from_akn(Path("data/aiACT.xml"))
+    db.load_from_akn(Path("reference/akoma-ntoso/aiAct-2024-1689.xml"))
     engine = RuleEngine(Path("data/seed_annexes.json"), Path("data/seed_concepts.json"), Path("data/seed_prohibitions.json"))
     result = engine.analyze(build_case_input("test"), db)
     assert result.relevant_ai_act_sources == []

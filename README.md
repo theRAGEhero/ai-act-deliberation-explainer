@@ -7,7 +7,7 @@ A traceable, ontology-assisted approach to evaluate whether an AI system is proh
 The app is designed to support discussion, teaching, workshops, and early issue spotting. It connects four layers:
 
 - citizen-readable explanations
-- deterministic legal-design signals
+- deterministic ontology-first legal-design signals
 - AI Act source references
 - machine-readable ontology output
 
@@ -18,14 +18,16 @@ It does not provide legal advice, certify compliance, or decide whether an AI sy
 Given a text input, the app:
 
 1. Normalizes the text and splits it into claims.
-2. Detects AI-system signals, actors, contexts, AI functions, and Article 5 prohibition keywords.
-3. Compares the text against explicit Article 5 prohibited-practice mappings.
-4. Copies targets, contexts, trigger conditions, exceptions, safeguards, and affected rights only from the matched mapping.
-5. Builds a traceability table from input snippets to the matched Article 5 point.
-6. Produces a citizen-facing explanation.
-7. Exposes the result as JSON.
-8. Exposes a small RDF ontology as Turtle and JSON-LD.
-9. Shows visual maps in the browser, including network, trace-flow, actor, risk, source, obligation, lifecycle, and question views.
+2. Extracts candidate factual signals without making a legal conclusion.
+3. Validates and indexes the Akoma Ntoso AI Act source-law file.
+4. Loads the reviewed Article 5 RDF ontology from `data/ontology/`.
+5. Checks only the legal elements, rights, exceptions, conditions, and source anchors defined in that RDF.
+6. Separates current binding AI Act material from Omnibus/proposed/amending material.
+7. Builds a traceability table from input snippets to ontology elements and Article 5 source anchors.
+8. Produces a citizen-facing explanation.
+9. Exposes the result as JSON.
+10. Exposes RDF ontology exports as Turtle and JSON-LD.
+11. Shows visual maps in the browser, including network, trace-flow, actor, risk, source, obligation, lifecycle, and question views.
 
 The app is intentionally cautious. Its output is a structured discussion aid, not a legal conclusion.
 
@@ -49,9 +51,9 @@ decision, but applicants will not see the score.
 
 Expected result:
 
-- the app detects AI-system context and functions
-- the app does not create a high-risk or general-obligations map
-- the app reports no grounded Article 5 prohibited-practice match unless the text also contains Article 5 facts
+- the app attempts to run the ontology-first Article 5 pipeline
+- if the reviewed legal ontology is missing, the response explicitly says `Legal analysis unavailable`
+- the app does not fall back to JSON keyword rules
 
 Example Article 5 input:
 
@@ -61,12 +63,11 @@ behaviour and personality characteristics. The score can cause detrimental
 treatment in access to services.
 ```
 
-Expected discussion signals include:
+Expected behavior before the reviewed Article 5 ontology is added:
 
-- Article 5(1)(c) social scoring leading to detrimental treatment
-- targets, contexts, trigger conditions, and affected rights copied from `data/seed_prohibitions.json`
-- Article 5 as the selected AI Act source
-- traceability from the input text to the matched Article 5 point
+- no legal conclusion is produced
+- `raw_rule_output.status` is `analysis_unavailable`
+- the response explains which source-law or ontology configuration is missing
 
 All signals still require human legal review.
 
@@ -81,63 +82,59 @@ The page lets a user:
 - paste a scenario or transcript
 - upload a `.txt` file
 - optionally request LLM refinement if configured
-- view detected actors, contexts, functions, risks, rights/interests, obligations, missing questions, sources, traceability, visual maps, and raw JSON
+- view ontology-derived legal elements, exceptions/conditions, source anchors, rights/interests, missing questions, traceability, visual maps, and raw JSON
 
-### Deterministic Rule Engine
+### Ontology-First Analysis Path
 
-`app/analysis/rule_engine.py` contains the core deterministic analysis. It is currently scoped to Article 5 prohibited AI practices.
+`POST /api/analyze` now uses an ontology-first Article 5 pipeline. The active path is:
 
-It uses keyword and concept mappings to detect:
+```text
+Akoma Ntoso AI Act XML
+  -> XSD validation
+  -> source anchors for Article 3 and Article 5
+  -> reviewed Article 5 RDF ontology
+  -> legal element checker
+  -> structured JSON output
+```
 
-- actors: provider, deployer, human operator, affected person
-- contexts: employment, education, public services, healthcare, law enforcement, migration, justice, democratic processes, chatbot/content AI
-- AI functions: scoring, ranking, filtering, recommendation, automated decision, biometric identification, prediction, content generation, chatbot interaction
-- Article 5 prohibited-practice matches from `data/seed_prohibitions.json`
-- rights/interests only when they are explicitly defined by the matched Article 5 rule
-- limited verification tasks and missing questions for Article 5 review
+There is no runtime switch back to the old JSON-rule path. `data/seed_prohibitions.json` remains in the repository only as historical material and is not used by `/api/analyze`.
 
-This engine works without an API key.
-
-If the submitted text does not contain enough evidence of an AI system, automated system, AI function, context, or risk, the app returns a no-sufficient-signal result instead of inventing a legal map.
-
-If the submitted text describes an AI system but does not match an Article 5 prohibited-practice rule, the app returns Article 5 as the review boundary and says that no grounded Article 5 match was detected. It does not fan out into high-risk obligations or other AI Act articles.
+If the source XML, XSD validation, source index, or reviewed legal ontology is missing or invalid, the API returns HTTP 200 with a valid `AnalysisResponse` whose `case_summary` is `Legal analysis unavailable`. This is intentional fail-closed behavior, not an application crash.
 
 ### Legal Source Layer
 
-`app/legal_source/akn_parser.py` parses the EU AI Act Akoma Ntoso XML file from:
+The active source-law file is the hackathon-provided Akoma Ntoso XML:
 
 ```text
-data/aiACT.xml
+reference/akoma-ntoso/aiAct-2024-1689.xml
 ```
 
-The parser extracts:
+It is validated against:
 
-- article number
-- heading
-- `eId`
-- full article text
-- paragraph text
-- Article 3 definitions where detectable
+```text
+reference/akoma-ntoso/akomantoso30.xsd
+reference/akoma-ntoso/xml.xsd
+```
 
-`app/legal_source/legal_db.py` keeps the parsed articles in memory. If the XML is missing or malformed, the app falls back to seeded article references.
+`app/legal_source/source_index.py` preserves source anchors for:
 
-### Article 5 Prohibition Mapping
+- Article 3 definitions
+- Article 5
+- Article 5(1)(a)-(h)
+- nested Article 5(1)(c)(i)-(ii)
+- nested Article 5(1)(h)(i)-(iii)
 
-`data/seed_prohibitions.json` is the controlling deterministic mapping for prohibited practices. Each entry defines:
+The repository now uses `reference/akoma-ntoso/aiAct-2024-1689.xml` as the single AI Act Akoma Ntoso source file.
 
-- `id`
-- `label`
-- `article_point`
-- `keywords`
-- `minimum_matches`
-- `targets`
-- `contexts`
-- `trigger_conditions`
-- `exceptions`
-- `affected_rights`
-- `safeguards`
+### Reviewed Legal Ontology
 
-The rule engine must not infer additional affected rights, trigger conditions, safeguards, targets, contexts, or exceptions. When a rule matches, the app includes all fields defined by that rule. When no rule matches, these fields remain empty.
+The reviewed Article 5 RDF ontology is stored as Turtle at:
+
+```text
+data/ontology/article5_reviewed.ttl
+```
+
+`app/ontology/legal_ontology_store.py` merges `.ttl` files from `data/ontology/` and validates the vocabulary expected by the reasoner. The ontology includes current AI Act Article 5 material and separately marked Omnibus/amending material. The active current-law reasoner skips Omnibus practices by default.
 
 ### Ontology Layer
 
@@ -160,11 +157,11 @@ The ontology models:
 - missing questions
 - Annex III areas
 
-The deterministic Article 5 mapping is represented separately in `data/seed_prohibitions.json`. The current workflow is:
+The active legal-analysis workflow is:
 
 ```text
-input text -> deterministic Article 5 rule mapping -> structured JSON response
-           -> source/traceability view -> RDF ontology export for project concepts
+input text -> fact extraction -> reviewed Article 5 RDF ontology elements
+           -> source anchors from validated AKN -> structured JSON response
 ```
 
 The graph can be exported as:
@@ -198,7 +195,7 @@ When enabled, OpenRouter receives:
 
 The model is instructed to stay within the provided sources and to preserve the non-legal-advice boundary. If no OpenRouter API key is configured, the app runs fully in deterministic mode.
 
-The OpenRouter prompt is also scoped to Article 5. It is instructed not to invent prohibited-practice matches and not to add rights, trigger conditions, safeguards, contexts, targets, or exceptions beyond the matched mapping.
+The OpenRouter prompt is also scoped to Article 5. It is instructed not to invent prohibited-practice matches and not to add rights, trigger conditions, safeguards, contexts, targets, exceptions, or legal elements beyond the reviewed RDF/source-law material supplied by the backend.
 
 For public deployments, OpenRouter refinement should be treated carefully because user text may contain personal, sensitive, or confidential information.
 
@@ -301,31 +298,45 @@ app/
   models.py                     Pydantic request/response models
   analysis/
     input_processor.py          Text normalization, claims, keywords
-    rule_engine.py              Deterministic AI Act signal detection
+    rule_engine.py              Legacy/deprecated JSON-rule engine, not wired to /api/analyze
     report_builder.py           Final response, markdown, graph data
     llm_agent.py                Optional OpenRouter refinement
     prompt_templates.py         LLM prompts
   legal_source/
     akn_parser.py               Akoma Ntoso XML parser
+    akn_validator.py            Local XSD validation for AKN source law
+    source_index.py             Article 3 / Article 5 source anchors
     legal_db.py                 In-memory legal article store
-    article_selector.py         Legacy concept-to-article mapping, not used by the Article 5 rule engine
+    article_selector.py         Legacy concept-to-article mapping
   ontology/
+    legal_ontology_store.py     Reviewed legal ontology loader/validator
+    case_graph.py               Per-analysis RDF debug graph
     ontology_builder.py         RDF graph construction
     ontology_store.py           Ontology access and serialization
     export.py                   File export helper
   static/style.css              Browser UI styles
+  static/icons/rights/          Optimized right/interests icons used in results
   templates/index.html          Browser UI and client-side visual maps
 
+  reasoning/
+    fact_extractor.py           Non-legal fact/evidence extraction
+    legal_element_checker.py    Legal element status objects
+    article5_reasoner.py        Ontology-first Article 5 reasoner
+
 data/
-  aiACT.xml                     EU AI Act AKN XML source
+  ontology/                     Reviewed Article 5 RDF ontology files
   seed_concepts.json            Seed actors, concepts, risks, rights, obligations
   seed_annexes.json             Seed Annex III areas and questions
-  seed_prohibitions.json        Article 5 prohibited-practice mappings
+  seed_prohibitions.json        Historical JSON mapping, not active legal source
   sample_transcripts/           Example text inputs
 
 generated/
   ontology.ttl                  Generated Turtle ontology
   ontology.jsonld               Generated JSON-LD ontology
+
+reference/
+  akoma-ntoso/                  Hackathon-provided AKN XML and schemas
+  icons/                        Original extracted icon artwork for reference
 
 scripts/
   parse_ai_act.py               Parser check script
@@ -336,6 +347,7 @@ tests/
   test_api.py
   test_ontology_builder.py
   test_rule_engine.py
+  test_ontology_first_architecture.py
 ```
 
 ## Local Setup
@@ -381,20 +393,26 @@ OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 OPENROUTER_MODEL=moonshotai/kimi-k2.6:free
 OPENROUTER_SITE_URL=https://ai-act.democracyroutes.com
 OPENROUTER_APP_TITLE=AI Act Prohibitions Checker
-AI_ACT_AKN_PATH=data/aiACT.xml
+AI_ACT_AKN_PATH=reference/akoma-ntoso/aiAct-2024-1689.xml
+AKOMANTOSO_XSD_PATH=reference/akoma-ntoso/akomantoso30.xsd
+XML_XSD_PATH=reference/akoma-ntoso/xml.xsd
+AKOMANTOSO_REFERENCE_PATH=reference/akoma-ntoso/akomantoso30.xml
+LEGAL_ONTOLOGY_DIR=data/ontology
 ```
 
-If `OPENROUTER_API_KEY` is empty, OpenRouter refinement is unavailable and the app runs with deterministic rules only.
+If `OPENROUTER_API_KEY` is empty, OpenRouter refinement is unavailable. It is never used as a legal fallback.
 
 ## Legal Source Data
 
 The preferred legal source is the AI Act Akoma Ntoso XML file:
 
 ```text
-data/aiACT.xml
+reference/akoma-ntoso/aiAct-2024-1689.xml
 ```
 
-The app also has root-level `aiACT.xml`; the runtime default points to `data/aiACT.xml`.
+The runtime default points to `reference/akoma-ntoso/aiAct-2024-1689.xml`.
+
+The original right/interests icon artwork is kept under `reference/icons/`. The UI uses smaller cleaned PNG copies in `app/static/icons/rights/` so result pages do not load the large reference images directly.
 
 To check parsing:
 

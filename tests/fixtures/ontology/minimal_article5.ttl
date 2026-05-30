@@ -1,0 +1,41 @@
+@prefix aid: <http://example.org/ai-act-deliberation#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Test fixture only. This is not the reviewed Article 5 legal ontology.
+
+aid:ProhibitedPractice a rdfs:Class .
+aid:LegalElement a rdfs:Class .
+aid:Exception a rdfs:Class .
+aid:Right a rdfs:Class .
+
+aid:prohibitedBy a rdf:Property .
+aid:requiresElement a rdf:Property .
+aid:hasException a rdf:Property .
+aid:affectsRight a rdf:Property .
+aid:hasSourceAnchor a rdf:Property .
+aid:sourceAnchor a rdf:Property .
+aid:elementType a rdf:Property .
+aid:requirementType a rdf:Property .
+
+aid:FixtureSocialScoringPractice a aid:ProhibitedPractice ;
+    rdfs:label "Fixture social scoring practice" ;
+    aid:prohibitedBy aid:Article5 ;
+    aid:requiresElement aid:FixtureSocialScoringElement ;
+    aid:affectsRight aid:FixtureNonDiscrimination ;
+    aid:hasSourceAnchor aid:FixtureArticle5_1_c .
+
+aid:FixtureSocialScoringElement a aid:LegalElement ;
+    rdfs:label "social scoring text" ;
+    aid:elementType "conduct" ;
+    aid:requirementType "required" .
+
+aid:FixtureNonDiscrimination a aid:Right ;
+    rdfs:label "non-discrimination" .
+
+aid:FixtureArticle5_1_c a aid:SourceAnchor ;
+    rdfs:label "Article 5(1)(c)" ;
+    aid:sourceAnchor "Article 5(1)(c)" .
+
+aid:FixtureException a aid:Exception ;
+    rdfs:label "Fixture exception" .

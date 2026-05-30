@@ -78,6 +78,44 @@ class DetectedItem(BaseModel):
     status: str = "possible"
 
 
+class EvidenceSupport(BaseModel):
+    snippet: str
+    source: str | None = None
+    confidence: float = 0.0
+
+
+class LegalElementResult(BaseModel):
+    id: str
+    label: str
+    source: str | None = None
+    element_type: str | None = None
+    requirement_type: str = "required"
+    status: str
+    evidence: list[EvidenceSupport] = Field(default_factory=list)
+    missing_question: str | None = None
+    confidence: float = 0.0
+
+
+class ExceptionResult(BaseModel):
+    id: str
+    label: str
+    source: str | None = None
+    status: str
+    evidence: list[EvidenceSupport] = Field(default_factory=list)
+    required_conditions: list[LegalElementResult] = Field(default_factory=list)
+
+
+class SourceAnchor(BaseModel):
+    article: str
+    paragraph: str | None = None
+    point: str | None = None
+    eId: str | None = None
+    label: str
+    frbr_uri: str | None = None
+    celex: str | None = None
+    legal_status: str = "current_binding_law"
+
+
 class ProhibitedPracticeMatch(BaseModel):
     id: str
     label: str
@@ -89,6 +127,10 @@ class ProhibitedPracticeMatch(BaseModel):
     safeguards: list[str] = Field(default_factory=list)
     trigger_conditions: list[str] = Field(default_factory=list)
     evidence: list[str] = Field(default_factory=list)
+    legal_elements: list[LegalElementResult] = Field(default_factory=list)
+    exception_results: list[ExceptionResult] = Field(default_factory=list)
+    source_anchors: list[SourceAnchor] = Field(default_factory=list)
+    legal_basis_status: str = "current_binding_law"
     confidence: float = 0.6
     status: str = "possible"
 

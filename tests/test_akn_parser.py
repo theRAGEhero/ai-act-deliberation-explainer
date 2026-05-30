@@ -10,7 +10,7 @@ def test_missing_file_no_crash(tmp_path):
 
 
 def test_parser_loads_ai_act_if_present():
-    path = Path("data/aiACT.xml")
+    path = Path("reference/akoma-ntoso/aiAct-2024-1689.xml")
     corpus = AKNParser().parse_file(path)
     if path.exists():
         assert len(corpus.articles) > 0

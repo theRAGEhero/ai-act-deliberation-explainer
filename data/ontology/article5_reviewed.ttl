@@ -1,0 +1,314 @@
+@prefix ai:    <https://cirsfid.unibo.it/ontology/ai-act/property/> .
+@prefix proh:  <https://cirsfid.unibo.it/ontology/ai-act/prohibited-practice/> .
+@prefix sys:   <https://cirsfid.unibo.it/ontology/ai-act/system/> .
+@prefix act:   <https://cirsfid.unibo.it/ontology/ai-act/actor/> .
+@prefix ctx:   <https://cirsfid.unibo.it/ontology/ai-act/context/> .
+@prefix mod:   <https://cirsfid.unibo.it/ontology/ai-act/modifier/> .
+@prefix right: <https://cirsfid.unibo.it/ontology/ai-act/right/> .
+@prefix akn:   <https://cirsfid.unibo.it/akn/eu/ai-act/> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+ai:AIActProhibitedPracticesOntology
+    rdf:type owl:Ontology ;
+    rdfs:label "AI Act Article 5 Prohibited Practices Ontology" ;
+    rdfs:comment "Reviewed Article 5 RDF legal model supplied by the legal team. Omnibus amendment material is represented separately from current Regulation (EU) 2024/1689 provisions." .
+
+ai:LegalSource rdf:type owl:Class .
+ai:Regulation rdf:type owl:Class ; rdfs:subClassOf ai:LegalSource .
+ai:AmendingAct rdf:type owl:Class ; rdfs:subClassOf ai:LegalSource .
+ai:Provision rdf:type owl:Class ; rdfs:subClassOf ai:LegalSource .
+ai:Derogation rdf:type owl:Class ; rdfs:subClassOf mod:Modifier .
+
+proh:ProhibitedPractice rdf:type owl:Class .
+sys:AISystem rdf:type owl:Class .
+act:Actor rdf:type owl:Class .
+ctx:Context rdf:type owl:Class .
+right:Right rdf:type owl:Class .
+mod:Modifier rdf:type owl:Class .
+mod:Exception rdf:type owl:Class ; rdfs:subClassOf mod:Modifier .
+mod:Condition rdf:type owl:Class ; rdfs:subClassOf mod:Modifier .
+
+ai:legalSource rdf:type owl:ObjectProperty .
+ai:isPartOf rdf:type owl:ObjectProperty .
+ai:amends rdf:type owl:ObjectProperty .
+ai:amendsProvision rdf:type owl:ObjectProperty .
+ai:insertedBy rdf:type owl:ObjectProperty .
+ai:usesSystem rdf:type owl:ObjectProperty .
+ai:placesSystemOnTheMarket rdf:type owl:ObjectProperty .
+ai:putsSystemIntoService rdf:type owl:ObjectProperty .
+ai:performedBy rdf:type owl:ObjectProperty .
+ai:targets rdf:type owl:ObjectProperty .
+ai:occursInContext rdf:type owl:ObjectProperty .
+ai:hasException rdf:type owl:ObjectProperty .
+ai:requiresCondition rdf:type owl:ObjectProperty .
+ai:hasDerogation rdf:type owl:ObjectProperty .
+ai:derogatesFrom rdf:type owl:ObjectProperty .
+ai:affectsRight rdf:type owl:ObjectProperty .
+
+ai:hasObjective rdf:type owl:DatatypeProperty .
+ai:hasEffect rdf:type owl:DatatypeProperty .
+ai:causesHarm rdf:type owl:DatatypeProperty .
+ai:likelyToCauseHarm rdf:type owl:DatatypeProperty .
+ai:materiallyDistortsBehaviour rdf:type owl:DatatypeProperty .
+ai:impairsInformedDecisionMaking rdf:type owl:DatatypeProperty .
+ai:classifiesPerson rdf:type owl:DatatypeProperty .
+ai:evaluatesPerson rdf:type owl:DatatypeProperty .
+ai:infersCharacteristic rdf:type owl:DatatypeProperty .
+ai:usesBiometricData rdf:type owl:DatatypeProperty .
+ai:usesFacialImages rdf:type owl:DatatypeProperty .
+ai:usesProfiling rdf:type owl:DatatypeProperty .
+ai:prohibitedWhen rdf:type owl:DatatypeProperty .
+ai:notProhibitedWhen rdf:type owl:DatatypeProperty .
+ai:currentBindingLaw rdf:type owl:DatatypeProperty .
+
+akn:AIAct2024_1689
+    rdf:type ai:Regulation ;
+    rdfs:label "Regulation (EU) 2024/1689 laying down harmonised rules on artificial intelligence" ;
+    ai:currentBindingLaw true .
+
+akn:OmnibusAIAct
+    rdf:type ai:AmendingAct ;
+    rdfs:label "Omnibus Amendment to the AI Act" ;
+    rdfs:comment "Proposed/amending material. Keep separate from current binding Regulation (EU) 2024/1689 analysis unless explicitly enabled." ;
+    ai:amends akn:AIAct2024_1689 ;
+    ai:currentBindingLaw false .
+
+akn:art_5 rdf:type ai:Provision ; rdfs:label "AI Act Article 5 - Prohibited AI Practices" ; ai:isPartOf akn:AIAct2024_1689 .
+akn:art_5_para_1_point_a rdf:type ai:Provision ; rdfs:label "Article 5(1)(a)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_1_point_b rdf:type ai:Provision ; rdfs:label "Article 5(1)(b)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_1_point_c rdf:type ai:Provision ; rdfs:label "Article 5(1)(c)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_1_point_d rdf:type ai:Provision ; rdfs:label "Article 5(1)(d)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_1_point_e rdf:type ai:Provision ; rdfs:label "Article 5(1)(e)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_1_point_f rdf:type ai:Provision ; rdfs:label "Article 5(1)(f)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_1_point_g rdf:type ai:Provision ; rdfs:label "Article 5(1)(g)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_1_point_h rdf:type ai:Provision ; rdfs:label "Article 5(1)(h)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_2 rdf:type ai:Provision ; rdfs:label "Article 5(2)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_3 rdf:type ai:Provision ; rdfs:label "Article 5(3)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_4 rdf:type ai:Provision ; rdfs:label "Article 5(4)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_5 rdf:type ai:Provision ; rdfs:label "Article 5(5)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_6 rdf:type ai:Provision ; rdfs:label "Article 5(6)" ; ai:isPartOf akn:art_5 .
+akn:art_5_para_7 rdf:type ai:Provision ; rdfs:label "Article 5(7)" ; ai:isPartOf akn:art_5 .
+
+akn:omnibus_art_5_point_ba rdf:type ai:Provision ; rdfs:label "Omnibus Article 5 point ba - non-consensual intimate deepfakes" ; ai:insertedBy akn:OmnibusAIAct ; ai:amendsProvision akn:art_5 .
+akn:omnibus_art_5_point_bb rdf:type ai:Provision ; rdfs:label "Omnibus Article 5 point bb - child sexual abuse material or performance" ; ai:insertedBy akn:OmnibusAIAct ; ai:amendsProvision akn:art_5 .
+akn:omnibus_art_5_condition_1a rdf:type ai:Provision ; rdfs:label "Omnibus conditions for points ba and bb" ; ai:insertedBy akn:OmnibusAIAct ; ai:amendsProvision akn:art_5 .
+akn:omnibus_art_5_exception_1b rdf:type ai:Provision ; rdfs:label "Omnibus exception for manipulation that does not increase exposure or alter sexual activity" ; ai:insertedBy akn:OmnibusAIAct ; ai:amendsProvision akn:art_5 .
+
+sys:ManipulativeOrDeceptiveSystem rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Manipulative or deceptive AI system" .
+sys:VulnerabilityExploitationSystem rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Vulnerability exploitation AI system" .
+sys:SocialScoringSystem rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Social scoring AI system" .
+sys:CriminalRiskAssessmentProfilingSystem rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Criminal risk assessment profiling AI system" .
+sys:FacialRecognitionDatabaseScraper rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Facial recognition database scraper" .
+sys:EmotionRecognitionSystem rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Emotion recognition AI system" .
+sys:BiometricCategorisationSystem rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Biometric categorisation AI system" .
+sys:RealTimeRemoteBiometricIdentificationSystem rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Real-time remote biometric identification AI system" .
+sys:NonConsensualIntimateDeepfakeGenerator rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Non-consensual intimate deepfake generator" .
+sys:NonConsensualIntimateDeepfakeManipulator rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Non-consensual intimate deepfake manipulator" .
+sys:ChildPornographyMaterialGenerator rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Child sexual abuse material generator" .
+sys:ChildPornographyMaterialManipulator rdf:type owl:Class ; rdfs:subClassOf sys:AISystem ; rdfs:label "Child sexual abuse material manipulator" .
+
+act:Provider rdf:type owl:Class ; rdfs:subClassOf act:Actor ; rdfs:label "Provider" .
+act:Deployer rdf:type owl:Class ; rdfs:subClassOf act:Actor ; rdfs:label "Deployer" .
+act:Authority rdf:type owl:Class ; rdfs:subClassOf act:Actor ; rdfs:label "Authority" .
+act:LawEnforcementAuthority rdf:type owl:Class ; rdfs:subClassOf act:Authority ; rdfs:label "Law enforcement authority" .
+act:NaturalPerson rdf:type owl:Class ; rdfs:subClassOf act:Actor ; rdfs:label "Natural person" .
+act:GroupOfPersons rdf:type owl:Class ; rdfs:subClassOf act:Actor ; rdfs:label "Group of persons" .
+act:VulnerablePerson rdf:type owl:Class ; rdfs:subClassOf act:NaturalPerson ; rdfs:label "Vulnerable person" .
+act:VulnerableGroup rdf:type owl:Class ; rdfs:subClassOf act:GroupOfPersons ; rdfs:label "Vulnerable group" .
+act:Worker rdf:type owl:Class ; rdfs:subClassOf act:NaturalPerson ; rdfs:label "Worker" .
+act:Student rdf:type owl:Class ; rdfs:subClassOf act:NaturalPerson ; rdfs:label "Student" .
+
+ctx:Workplace rdf:type owl:Class ; rdfs:subClassOf ctx:Context ; rdfs:label "Workplace" .
+ctx:EducationInstitution rdf:type owl:Class ; rdfs:subClassOf ctx:Context ; rdfs:label "Education institution" .
+ctx:PubliclyAccessibleSpace rdf:type owl:Class ; rdfs:subClassOf ctx:Context ; rdfs:label "Publicly accessible space" .
+ctx:LawEnforcementContext rdf:type owl:Class ; rdfs:subClassOf ctx:Context ; rdfs:label "Law enforcement context" .
+ctx:Internet rdf:type owl:Class ; rdfs:subClassOf ctx:Context ; rdfs:label "Internet" .
+ctx:CCTVFootage rdf:type owl:Class ; rdfs:subClassOf ctx:Context ; rdfs:label "CCTV footage" .
+
+right:Right_CognitiveAutonomy rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Cognitive autonomy" .
+right:Right_InformedDecisionMaking rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Informed decision-making" .
+right:Right_CognitivePrivacy rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Cognitive privacy" .
+right:Right_NonManipulation rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Non-manipulation" .
+right:Right_NonDiscrimination rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Non-discrimination" .
+right:Right_BiometricPrivacy rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Biometric privacy" .
+right:Right_EmotionalPrivacy rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Emotional privacy" .
+right:Right_IntimateConsent rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Intimate consent" .
+right:Right_SexualAutonomy rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Sexual autonomy" .
+right:Right_ChildProtection rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Child protection" .
+right:Right_FairTreatment rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Fair treatment" .
+right:Right_DueProcess rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Due process" .
+right:Right_PhysicalSafety rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Physical safety" .
+right:Right_FundamentalRightsProtection rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Fundamental rights protection" .
+right:Right_DataProtection rdf:type owl:Class ; rdfs:subClassOf right:Right ; rdfs:label "Data protection" .
+
+mod:Exception_LawfulAssessmentOfCriminalActivity rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Lawful assessment of criminal activity" .
+mod:Exception_ObjectiveVerifiableFacts rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Objective and verifiable facts" .
+mod:Exception_MedicalReason rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Medical reason" .
+mod:Exception_SafetyReason rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Safety reason" .
+mod:Exception_PreventionOfThreatToLife rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Prevention of threat to life" .
+mod:Exception_PreventionOfThreatToSafety rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Prevention of threat to safety" .
+mod:Exception_PreventionOfTerroristThreat rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Prevention of terrorist threat" .
+mod:Exception_CategorizationOfLawfullyAcquiredBiometricDatasetForLawEnforcement rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Law enforcement categorisation of lawfully acquired biometric dataset" .
+mod:Exception_LabellingLawfullyAcquiredBiometricDataset rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Labelling lawfully acquired biometric dataset" .
+mod:Exception_FilteringLawfullyAcquiredBiometricDataset rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Filtering lawfully acquired biometric dataset" .
+mod:Exception_TargetedSearchForSpecificVictimsOfAbduction rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Targeted search for victims of abduction" .
+mod:Exception_TargetedSearchForSpecificVictimsOfTraffickingInHumanBeings rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Targeted search for victims of trafficking in human beings" .
+mod:Exception_TargetedSearchForSpecificVictimsOfSexualExploitationOfHumanBeings rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Targeted search for victims of sexual exploitation" .
+mod:Exception_TargetedSearchForMissingPersons rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Targeted search for missing persons" .
+mod:Exception_TargetedSearchForCriminalSuspects rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Targeted search for criminal suspects" .
+mod:Exception_NoIncreasedIntimateExposure rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "No increased intimate exposure" .
+mod:Exception_NoAlteredSexualActivities rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "No altered sexual activities" .
+mod:Exception_ReasonableSafeguards rdf:type owl:Class ; rdfs:subClassOf mod:Exception ; rdfs:label "Reasonable safeguards" .
+
+mod:Condition_FreelyGivenConsent rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Freely given consent" .
+mod:Condition_SpecificConsent rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Specific consent" .
+mod:Condition_InformedConsent rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Informed consent" .
+mod:Condition_UnambiguousConsent rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Unambiguous consent" .
+mod:Condition_ExplicitConsent rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Explicit consent" .
+mod:Condition_StrictNecessity rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Strict necessity" .
+mod:Condition_HarmSeriousnessProbabilityScale rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Harm seriousness, probability and scale" .
+mod:Condition_RightBasedProportionality rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Right-based proportionality" .
+mod:Condition_ContextualProportionality rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Contextual proportionality" .
+mod:Condition_NationalLawAuthorisation rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "National law authorisation" .
+mod:Condition_FundamentalRightsImpactAssessment rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Fundamental rights impact assessment" .
+mod:Condition_EUDatabaseRegistration rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "EU database registration" .
+mod:Condition_NotificationToAuthorities rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Notification to authorities" .
+mod:Condition_AnnualReportingToCommission rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Annual reporting to Commission" .
+mod:Condition_ReportPublication rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Report publication" .
+mod:Condition_TemporalLimitation rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Temporal limitation" .
+mod:Condition_GeographicLimitation rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Geographic limitation" .
+mod:Condition_PersonalLimitation rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Personal limitation" .
+mod:Condition_NoSolelyAutomatedAdverseDecision rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "No solely automated adverse decision" .
+mod:Condition_IntendedPurpose rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Intended purpose" .
+mod:Condition_ReasonableSafeguards rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Reasonable safeguards" .
+
+mod:ExceptionOfException_JustifiedUrgency rdf:type owl:Class ; rdfs:subClassOf ai:Derogation ; rdfs:label "Justified urgency derogation from prior authorisation" ;
+    ai:derogatesFrom mod:Condition_NationalLawAuthorisation ;
+    ai:requiresCondition mod:ConditionExceptionOfException_DelayedOneDayAuthorisation .
+mod:ConditionExceptionOfException_DelayedOneDayAuthorisation rdf:type owl:Class ; rdfs:subClassOf mod:Condition ; rdfs:label "Authorisation must be requested without undue delay and at the latest within 24 hours" .
+
+proh:HarmfulSubliminalInfluence rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Harmful subliminal influence" ;
+    ai:legalSource akn:art_5_para_1_point_a ;
+    ai:usesSystem sys:ManipulativeOrDeceptiveSystem ;
+    ai:targets act:NaturalPerson, act:GroupOfPersons ;
+    ai:materiallyDistortsBehaviour true ;
+    ai:impairsInformedDecisionMaking true ;
+    ai:causesHarm true ;
+    ai:affectsRight right:Right_CognitiveAutonomy, right:Right_InformedDecisionMaking, right:Right_NonManipulation .
+
+proh:HarmfulDeceptiveManipulation rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Harmful deceptive manipulation" ;
+    ai:legalSource akn:art_5_para_1_point_a ;
+    ai:usesSystem sys:ManipulativeOrDeceptiveSystem ;
+    ai:targets act:NaturalPerson, act:GroupOfPersons ;
+    ai:materiallyDistortsBehaviour true ;
+    ai:impairsInformedDecisionMaking true ;
+    ai:causesHarm true ;
+    ai:affectsRight right:Right_CognitiveAutonomy, right:Right_InformedDecisionMaking, right:Right_NonManipulation .
+
+proh:ExploitationOfAgeDisabilityOrSocioEconomicVulnerability rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Exploitation of age, disability or socio-economic vulnerability" ;
+    ai:legalSource akn:art_5_para_1_point_b ;
+    ai:usesSystem sys:VulnerabilityExploitationSystem ;
+    ai:targets act:VulnerablePerson, act:VulnerableGroup ;
+    ai:materiallyDistortsBehaviour true ;
+    ai:causesHarm true ;
+    ai:affectsRight right:Right_NonManipulation, right:Right_FairTreatment, right:Right_PhysicalSafety, right:Right_FundamentalRightsProtection .
+
+proh:DetrimentalSocialScoring rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Detrimental social scoring" ;
+    ai:legalSource akn:art_5_para_1_point_c ;
+    ai:usesSystem sys:SocialScoringSystem ;
+    ai:targets act:NaturalPerson, act:GroupOfPersons ;
+    ai:evaluatesPerson true ;
+    ai:classifiesPerson true ;
+    ai:prohibitedWhen "social score leads to detrimental, unfavourable, unrelated, unjustified, or disproportionate treatment" ;
+    ai:affectsRight right:Right_FairTreatment, right:Right_NonDiscrimination .
+
+proh:CriminalRiskPredictionBasedSolelyOnProfiling rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Criminal risk prediction based solely on profiling" ;
+    ai:legalSource akn:art_5_para_1_point_d ;
+    ai:usesSystem sys:CriminalRiskAssessmentProfilingSystem ;
+    ai:targets act:NaturalPerson ;
+    ai:usesProfiling true ;
+    ai:prohibitedWhen "risk assessment is based solely on profiling or personality traits" ;
+    ai:hasException mod:Exception_LawfulAssessmentOfCriminalActivity, mod:Exception_ObjectiveVerifiableFacts ;
+    ai:affectsRight right:Right_DueProcess, right:Right_FairTreatment .
+
+proh:UntargetedFacialImageScraping rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Untargeted facial image scraping" ;
+    ai:legalSource akn:art_5_para_1_point_e ;
+    ai:usesSystem sys:FacialRecognitionDatabaseScraper ;
+    ai:usesFacialImages true ;
+    ai:occursInContext ctx:Internet, ctx:CCTVFootage ;
+    ai:prohibitedWhen "system creates or expands facial recognition databases through untargeted scraping" ;
+    ai:affectsRight right:Right_BiometricPrivacy, right:Right_DataProtection .
+
+proh:EmotionRecognitionInWorkplace rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Emotion recognition in workplace" ;
+    ai:legalSource akn:art_5_para_1_point_f ;
+    ai:usesSystem sys:EmotionRecognitionSystem ;
+    ai:occursInContext ctx:Workplace ;
+    ai:targets act:Worker ;
+    ai:hasException mod:Exception_MedicalReason, mod:Exception_SafetyReason ;
+    ai:affectsRight right:Right_EmotionalPrivacy, right:Right_CognitivePrivacy, right:Right_FairTreatment .
+
+proh:EmotionRecognitionInEducation rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Emotion recognition in education" ;
+    ai:legalSource akn:art_5_para_1_point_f ;
+    ai:usesSystem sys:EmotionRecognitionSystem ;
+    ai:occursInContext ctx:EducationInstitution ;
+    ai:targets act:Student ;
+    ai:hasException mod:Exception_MedicalReason, mod:Exception_SafetyReason ;
+    ai:affectsRight right:Right_EmotionalPrivacy, right:Right_CognitivePrivacy, right:Right_FairTreatment .
+
+proh:SensitiveBiometricCategorisation rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Sensitive biometric categorisation" ;
+    ai:legalSource akn:art_5_para_1_point_g ;
+    ai:usesSystem sys:BiometricCategorisationSystem ;
+    ai:targets act:NaturalPerson ;
+    ai:usesBiometricData true ;
+    ai:infersCharacteristic "race, political opinions, trade union membership, religious or philosophical beliefs, sex life, sexual orientation" ;
+    ai:hasException mod:Exception_CategorizationOfLawfullyAcquiredBiometricDatasetForLawEnforcement, mod:Exception_LabellingLawfullyAcquiredBiometricDataset, mod:Exception_FilteringLawfullyAcquiredBiometricDataset ;
+    ai:affectsRight right:Right_BiometricPrivacy, right:Right_NonDiscrimination, right:Right_DataProtection .
+
+proh:RealTimeRemoteBiometricIdentificationInPublicSpacesForLawEnforcement rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Real-time remote biometric identification in public spaces for law enforcement" ;
+    ai:legalSource akn:art_5_para_1_point_h, akn:art_5_para_2, akn:art_5_para_3, akn:art_5_para_4, akn:art_5_para_5, akn:art_5_para_6, akn:art_5_para_7 ;
+    ai:usesSystem sys:RealTimeRemoteBiometricIdentificationSystem ;
+    ai:performedBy act:LawEnforcementAuthority ;
+    ai:occursInContext ctx:PubliclyAccessibleSpace, ctx:LawEnforcementContext ;
+    ai:hasException mod:Exception_TargetedSearchForSpecificVictimsOfAbduction, mod:Exception_TargetedSearchForSpecificVictimsOfTraffickingInHumanBeings, mod:Exception_TargetedSearchForSpecificVictimsOfSexualExploitationOfHumanBeings, mod:Exception_TargetedSearchForMissingPersons, mod:Exception_PreventionOfThreatToLife, mod:Exception_PreventionOfThreatToSafety, mod:Exception_PreventionOfTerroristThreat, mod:Exception_TargetedSearchForCriminalSuspects ;
+    ai:requiresCondition mod:Condition_StrictNecessity, mod:Condition_HarmSeriousnessProbabilityScale, mod:Condition_RightBasedProportionality, mod:Condition_ContextualProportionality, mod:Condition_NationalLawAuthorisation, mod:Condition_FundamentalRightsImpactAssessment, mod:Condition_EUDatabaseRegistration, mod:Condition_TemporalLimitation, mod:Condition_GeographicLimitation, mod:Condition_PersonalLimitation, mod:Condition_NoSolelyAutomatedAdverseDecision, mod:Condition_NotificationToAuthorities, mod:Condition_AnnualReportingToCommission, mod:Condition_ReportPublication ;
+    ai:hasDerogation mod:ExceptionOfException_JustifiedUrgency ;
+    ai:affectsRight right:Right_BiometricPrivacy, right:Right_DueProcess, right:Right_PhysicalSafety, right:Right_FundamentalRightsProtection, right:Right_DataProtection .
+
+proh:IntendedScalableNonConsensualIntimateDeepfakeGenerator rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Intended scalable non-consensual intimate deepfake generator" ;
+    ai:legalSource akn:omnibus_art_5_point_ba ;
+    ai:usesSystem sys:NonConsensualIntimateDeepfakeGenerator ;
+    ai:targets act:NaturalPerson ;
+    ai:prohibitedWhen "system generates realistic intimate or sexually explicit material of an identifiable person without freely given, specific, informed, unambiguous and explicit consent" ;
+    ai:requiresCondition mod:Condition_IntendedPurpose ;
+    ai:hasException mod:Condition_FreelyGivenConsent, mod:Condition_SpecificConsent, mod:Condition_InformedConsent, mod:Condition_UnambiguousConsent, mod:Condition_ExplicitConsent, mod:Exception_NoIncreasedIntimateExposure, mod:Exception_NoAlteredSexualActivities, mod:Exception_ReasonableSafeguards ;
+    ai:affectsRight right:Right_IntimateConsent, right:Right_SexualAutonomy, right:Right_DataProtection .
+
+proh:IntendedScalableNonConsensualIntimateDeepfakeManipulator rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Intended scalable non-consensual intimate deepfake manipulator" ;
+    ai:legalSource akn:omnibus_art_5_point_ba ;
+    ai:usesSystem sys:NonConsensualIntimateDeepfakeManipulator ;
+    ai:targets act:NaturalPerson ;
+    ai:prohibitedWhen "system manipulates realistic intimate or sexually explicit material of an identifiable person without freely given, specific, informed, unambiguous and explicit consent" ;
+    ai:requiresCondition mod:Condition_IntendedPurpose ;
+    ai:hasException mod:Condition_FreelyGivenConsent, mod:Condition_SpecificConsent, mod:Condition_InformedConsent, mod:Condition_UnambiguousConsent, mod:Condition_ExplicitConsent, mod:Exception_NoIncreasedIntimateExposure, mod:Exception_NoAlteredSexualActivities, mod:Exception_ReasonableSafeguards ;
+    ai:affectsRight right:Right_IntimateConsent, right:Right_SexualAutonomy, right:Right_DataProtection .
+
+proh:IntendedScalableChildPornographySexualAbuseMaterialGenerator rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Intended scalable child sexual abuse material generator" ;
+    ai:legalSource akn:omnibus_art_5_point_bb ;
+    ai:usesSystem sys:ChildPornographyMaterialGenerator ;
+    ai:targets act:NaturalPerson ;
+    ai:prohibitedWhen "system generates material or performance covered by Directive 2011/93/EU Article 2(c) or 2(e)" ;
+    ai:requiresCondition mod:Condition_IntendedPurpose ;
+    ai:hasException mod:Exception_ReasonableSafeguards ;
+    ai:affectsRight right:Right_ChildProtection, right:Right_PhysicalSafety, right:Right_FundamentalRightsProtection .
+
+proh:IntendedScalableChildPornographyManipulator rdf:type owl:Class ; rdfs:subClassOf proh:ProhibitedPractice ; rdfs:label "Intended scalable child sexual abuse material manipulator" ;
+    ai:legalSource akn:omnibus_art_5_point_bb ;
+    ai:usesSystem sys:ChildPornographyMaterialManipulator ;
+    ai:targets act:NaturalPerson ;
+    ai:prohibitedWhen "system manipulates material or performance covered by Directive 2011/93/EU Article 2(c) or 2(e)" ;
+    ai:requiresCondition mod:Condition_IntendedPurpose ;
+    ai:hasException mod:Exception_ReasonableSafeguards ;
+    ai:affectsRight right:Right_ChildProtection, right:Right_PhysicalSafety, right:Right_FundamentalRightsProtection .

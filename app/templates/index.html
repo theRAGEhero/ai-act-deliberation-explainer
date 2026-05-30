@@ -22,10 +22,10 @@
     </header>
     <section class="method-strip">
       <span>Input text</span>
-      <span>Deterministic rules</span>
-      <span>AI Act sources</span>
-      <span>RDF ontology</span>
-      <span>Traceable output</span>
+      <span>AKN source law</span>
+      <span>Article 5 RDF</span>
+      <span>Element status</span>
+      <span>Traceable JSON</span>
     </section>
     <section class="card input-card">
       <div class="section-label">Scenario input</div>
@@ -51,13 +51,13 @@
         <h2>Prohibited-practice matches</h2>
         <div id="prohibitions" class="prohibition-list"></div>
       </div>
-      <div class="grid evidence-grid">
-        <div class="card"><h2>Actors</h2><ul id="actors"></ul></div>
-        <div class="card"><h2>Contexts / functions</h2><ul id="contexts"></ul><ul id="functions"></ul></div>
-        <div class="card"><h2>Risks</h2><ul id="risks"></ul></div>
+      <div class="grid evidence-grid ontology-grid">
+        <div class="card"><h2>Legal elements</h2><div id="elements"></div></div>
+        <div class="card"><h2>Exceptions / conditions</h2><div id="exceptions"></div></div>
+        <div class="card"><h2>Source anchors</h2><div id="anchors"></div></div>
         <div class="card"><h2>Rights / interests</h2><ul id="rights"></ul></div>
-        <div class="card"><h2>Obligations to verify</h2><ul id="obligations"></ul></div>
-        <div class="card"><h2>Missing questions</h2><ul id="questions"></ul></div>
+        <div class="card"><h2>Missing evidence</h2><ul id="questions"></ul></div>
+        <div class="card"><h2>System notes</h2><ul id="notes"></ul></div>
       </div>
       <div class="card graph-card">
         <div class="card-head">
@@ -67,13 +67,13 @@
         <div id="visualTabs" class="visual-tabs">
           <button type="button" class="visual-tab active" data-view="network">Network</button>
           <button type="button" class="visual-tab" data-view="traceFlow">Trace flow</button>
-          <button type="button" class="visual-tab" data-view="actorMap">Actor map</button>
-          <button type="button" class="visual-tab" data-view="riskMatrix">Risk matrix</button>
+          <button type="button" class="visual-tab" data-view="actorMap">Legal elements</button>
+          <button type="button" class="visual-tab" data-view="riskMatrix">Element status</button>
           <button type="button" class="visual-tab" data-view="sourceMap">Source map</button>
           <button type="button" class="visual-tab" data-view="questionTree">Question tree</button>
-          <button type="button" class="visual-tab" data-view="obligationMap">Obligations</button>
+          <button type="button" class="visual-tab" data-view="obligationMap">Exceptions</button>
           <button type="button" class="visual-tab" data-view="bipartiteMap">Risks/rights</button>
-          <button type="button" class="visual-tab" data-view="lifecycleMap">Lifecycle</button>
+          <button type="button" class="visual-tab" data-view="lifecycleMap">Review path</button>
           <button type="button" class="visual-tab" data-view="projectInfo">Project info</button>
         </div>
         <div class="visual-panel active" data-panel="network">
@@ -114,6 +114,30 @@
       }
       values.forEach(v => { const li = document.createElement("li"); li.textContent = v.label || v; $(id).appendChild(li); });
     };
+    const rightIconMap = {
+      "biometric privacy": "biometric-privacy.png",
+      "child protection": "child-protection.png",
+      "cognitive autonomy": "cognitive-autonomy.png",
+      "cognitive privacy": "privacy.png",
+      "data protection": "data-protection.png",
+      "due process": "due-process.png",
+      "emotional privacy": "emotional-privacy.png",
+      "fair treatment": "fair-treatment.png",
+      "fundamental rights": "fundamental-rights.png",
+      "fundamental rights protection": "fundamental-rights.png",
+      "informed decision": "informed-decision.png",
+      "informed decision making": "informed-decision.png",
+      "informed decision-making": "informed-decision.png",
+      "intimate consent": "intimate-consent.png",
+      "non discrimination": "non-discrimination.png",
+      "non-discrimination": "non-discrimination.png",
+      "non manipulation": "non-manipulation.png",
+      "non-manipulation": "non-manipulation.png",
+      "physical safety": "physical-safety.png",
+      "privacy": "privacy.png",
+      "privacy/data protection": "data-protection.png",
+      "sexual autonomy": "sexual-autonomy.png"
+    };
     const graphPalette = {
       scenario: { fill: "#111827", stroke: "#111827", text: "#ffffff", label: "Scenario" },
       actor: { fill: "#e0f2fe", stroke: "#0284c7", text: "#0c4a6e", label: "Actors" },
@@ -121,6 +145,8 @@
       right: { fill: "#dcfce7", stroke: "#16a34a", text: "#14532d", label: "Rights" },
       obligation: { fill: "#fef3c7", stroke: "#d97706", text: "#78350f", label: "Obligations" },
       prohibition: { fill: "#ffe4e6", stroke: "#be123c", text: "#881337", label: "Article 5 matches" },
+      element: { fill: "#ecfeff", stroke: "#0891b2", text: "#164e63", label: "Legal elements" },
+      exception: { fill: "#fff7ed", stroke: "#ea580c", text: "#7c2d12", label: "Exceptions" },
       article: { fill: "#ede9fe", stroke: "#7c3aed", text: "#3b0764", label: "Sources" }
     };
 
@@ -164,7 +190,7 @@
 
     function renderLegend() {
       $("graphLegend").innerHTML = "";
-      ["prohibition", "actor", "risk", "right", "obligation", "article"].forEach((type) => {
+      ["prohibition", "element", "exception", "right", "article"].forEach((type) => {
         const item = document.createElement("span");
         item.className = "legend-item";
         item.innerHTML = `<span style="background:${graphPalette[type].fill}; border-color:${graphPalette[type].stroke}"></span>${graphPalette[type].label}`;
@@ -178,6 +204,171 @@
 
     function chip(label, type = "") {
       return `<span class="viz-chip ${type}">${escapeHtml(label)}</span>`;
+    }
+
+    function rightIconPath(label) {
+      const key = String(label || "").trim().toLowerCase().replace(/\s+/g, " ");
+      const file = rightIconMap[key];
+      return file ? `/static/icons/rights/${file}` : "";
+    }
+
+    function rightChip(label) {
+      const icon = rightIconPath(label);
+      const img = icon ? `<img class="right-chip-icon" src="${icon}" alt="" aria-hidden="true">` : "";
+      return `<span class="viz-chip right right-chip">${img}${escapeHtml(label)}</span>`;
+    }
+
+    function statusChip(status) {
+      const value = status || "unknown";
+      return `<span class="status-chip status-${escapeHtml(value).replace(/[^a-z0-9_-]/gi, "-")}">${escapeHtml(value.replaceAll("_", " "))}</span>`;
+    }
+
+    function renderLegalElements(elements) {
+      if (!elements || !elements.length) return `<div class="empty-state">No legal elements were exposed by the ontology for this practice.</div>`;
+      return `
+        <div class="ontology-subsection">
+          <strong>Legal elements from RDF</strong>
+          <div class="element-table">
+            ${elements.map((element) => `
+              <div class="element-row">
+                <div>${escapeHtml(element.label)}</div>
+                <div>${statusChip(element.status)}</div>
+                <div>${(element.evidence || []).map((item) => chip(item.snippet || item, "muted")).join("") || (element.missing_question ? escapeHtml(element.missing_question) : "No evidence snippet.")}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderExceptionResults(exceptions) {
+      if (!exceptions || !exceptions.length) return `<div class="empty-state">No exception was defined in the matched RDF rule.</div>`;
+      return `
+        <div class="ontology-subsection">
+          <strong>Exceptions / conditions from RDF</strong>
+          <div class="exception-list">
+            ${exceptions.map((exception) => `
+              <div class="exception-row">
+                <div><span>${escapeHtml(exception.label)}</span>${statusChip(exception.status)}</div>
+                <div class="chip-list">${(exception.required_conditions || []).map((condition) => `${chip(condition.label, "obligation")} ${statusChip(condition.status)}`).join("") || chip("no linked condition rows", "muted")}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSourceAnchors(anchors) {
+      if (!anchors || !anchors.length) return `<div class="empty-state">No source anchor was exposed by the RDF rule.</div>`;
+      return `
+        <div class="ontology-subsection">
+          <strong>Source anchors</strong>
+          <div class="chip-list">
+            ${anchors.map((anchor) => chip(`${anchor.label}${anchor.eId ? ` · ${anchor.eId}` : ""} · ${String(anchor.legal_status || "current_binding_law").replaceAll("_", " ")}`, anchor.legal_status === "current_binding_law" ? "right" : "obligation")).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function listRights(id, values) {
+      const target = $(id);
+      target.innerHTML = "";
+      target.classList.add("icon-list");
+      if (!values || !values.length) {
+        const li = document.createElement("li");
+        li.className = "empty-state";
+        li.textContent = "No grounded signal detected.";
+        target.appendChild(li);
+        return;
+      }
+      values.forEach((value) => {
+        const label = value.label || value;
+        const li = document.createElement("li");
+        li.className = "right-list-item";
+        const icon = rightIconPath(label);
+        if (icon) {
+          const img = document.createElement("img");
+          img.className = "right-list-icon";
+          img.src = icon;
+          img.alt = "";
+          img.setAttribute("aria-hidden", "true");
+          li.appendChild(img);
+        }
+        const span = document.createElement("span");
+        span.textContent = label;
+        li.appendChild(span);
+        target.appendChild(li);
+      });
+    }
+
+    function matches(data) {
+      return data.matched_prohibited_practices || [];
+    }
+
+    function legalElements(data) {
+      return matches(data).flatMap((match) => (match.legal_elements || []).map((element) => ({ ...element, practice: match.label, article_point: match.article_point })));
+    }
+
+    function exceptionResults(data) {
+      return matches(data).flatMap((match) => (match.exception_results || []).map((exception) => ({ ...exception, practice: match.label })));
+    }
+
+    function sourceAnchors(data) {
+      return matches(data).flatMap((match) => (match.source_anchors || []).map((anchor) => ({ ...anchor, practice: match.label })));
+    }
+
+    function renderElementSummary(data) {
+      const elements = legalElements(data);
+      if (!elements.length) {
+        $("elements").innerHTML = `<div class="empty-state">No RDF legal elements were evaluated.</div>`;
+        return;
+      }
+      $("elements").innerHTML = `
+        <div class="ontology-list">
+          ${elements.slice(0, 10).map((element) => `
+            <div class="ontology-list-row">
+              <div><strong>${escapeHtml(element.label)}</strong><span>${escapeHtml(element.practice)} · ${escapeHtml(element.article_point || "")}</span></div>
+              ${statusChip(element.status)}
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderExceptionSummary(data) {
+      const exceptions = exceptionResults(data);
+      if (!exceptions.length) {
+        $("exceptions").innerHTML = `<div class="empty-state">No RDF exceptions or condition rows were attached to the current match.</div>`;
+        return;
+      }
+      $("exceptions").innerHTML = `
+        <div class="ontology-list">
+          ${exceptions.slice(0, 10).map((exception) => `
+            <div class="ontology-list-row">
+              <div><strong>${escapeHtml(exception.label)}</strong><span>${escapeHtml(exception.practice)} · ${(exception.required_conditions || []).length} linked condition(s)</span></div>
+              ${statusChip(exception.status)}
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderAnchorSummary(data) {
+      const anchors = sourceAnchors(data);
+      if (!anchors.length) {
+        $("anchors").innerHTML = `<div class="empty-state">No RDF source anchors were returned.</div>`;
+        return;
+      }
+      $("anchors").innerHTML = `
+        <div class="ontology-list">
+          ${anchors.slice(0, 10).map((anchor) => `
+            <div class="ontology-list-row">
+              <div><strong>${escapeHtml(anchor.label)}</strong><span>${escapeHtml(anchor.eId || "eId unavailable")} · ${escapeHtml(anchor.practice)}</span></div>
+              ${statusChip(anchor.legal_status || "current_binding_law")}
+            </div>
+          `).join("")}
+        </div>
+      `;
     }
 
     function sourceLabel(number) {
@@ -211,15 +402,19 @@
     }
 
     function renderResultStats(data) {
+      const elements = legalElements(data);
+      const supported = elements.filter((element) => element.status === "supported").length;
+      const missing = elements.filter((element) => element.status === "missing").length;
+      const anchors = sourceAnchors(data).length;
       const stats = [
         ["Prohibitions", (data.matched_prohibited_practices || []).length],
-        ["Contexts", data.detected_contexts.length],
-        ["Functions", data.detected_ai_functions.length],
-        ["Risks", data.possible_risks.length],
-        ["Sources", data.relevant_ai_act_sources.length],
+        ["Elements", elements.length],
+        ["Supported", supported],
+        ["Missing", missing],
+        ["Anchors", anchors],
         ["Trace rows", data.traceability.length]
       ];
-      const grounded = data.relevant_ai_act_sources.length || data.possible_risks.length || data.detected_ai_functions.length;
+      const grounded = anchors || supported || data.relevant_ai_act_sources.length;
       $("resultStats").classList.toggle("weak", !grounded);
       $("resultStats").innerHTML = stats.map(([label, value]) => `<span><strong>${value}</strong>${label}</span>`).join("");
     }
@@ -233,13 +428,19 @@
         <article class="prohibition-card">
           <div>
             <h3>${escapeHtml(match.label)} <span>${escapeHtml(match.article_point)}</span></h3>
+            <div class="law-status">${statusChip(match.legal_basis_status || "current_binding_law")}</div>
             <p>Evidence: ${(match.evidence || []).map((item) => chip(item, "risk")).join("") || chip("to verify", "muted")}</p>
           </div>
           <div class="prohibition-grid">
             <div><strong>Targets</strong>${(match.targets || []).map((item) => chip(item, "muted")).join("") || chip("none defined", "muted")}</div>
             <div><strong>Contexts</strong>${(match.contexts || []).map((item) => chip(item, "muted")).join("") || chip("none defined", "muted")}</div>
-            <div><strong>Affected rights</strong>${(match.affected_rights || []).map((item) => chip(item, "right")).join("") || chip("none defined", "muted")}</div>
+            <div><strong>Affected rights</strong>${(match.affected_rights || []).map((item) => rightChip(item)).join("") || chip("none defined", "muted")}</div>
             <div><strong>Exceptions</strong>${(match.exceptions || []).map((item) => chip(item, "obligation")).join("") || chip("none defined", "muted")}</div>
+          </div>
+          <div class="ontology-details">
+            ${renderLegalElements(match.legal_elements)}
+            ${renderExceptionResults(match.exception_results)}
+            ${renderSourceAnchors(match.source_anchors)}
           </div>
         </article>
       `).join("");
@@ -259,37 +460,30 @@
     }
 
     function renderActorMap(data) {
-      const obligations = labelList(data.obligations_to_verify, 10);
-      const buckets = {
-        provider: obligations.filter((o) => /instruction|documentation|technical|monitor/i.test(o)),
-        deployer: obligations.filter((o) => /human|impact|logs|inform deployer|review/i.test(o)),
-        "affected person": ["transparency", "contestability", "human explanation"].filter((label) => labelList(data.possible_rights_or_interests, 20).includes(label)),
-        "human operator": obligations.filter((o) => /human|review|oversight/i.test(o))
-      };
-      const actors = labelList(data.detected_actors, 8).map((actor) => {
-        const duties = buckets[actor] || obligations.slice(0, 3);
-        return `<div class="actor-card"><h3>${escapeHtml(actor)}</h3><div class="chip-list">${duties.map((d) => chip(d, "obligation")).join("") || chip("role to verify", "muted")}</div></div>`;
-      }).join("");
-      setPanel("actorMap", `<div class="viz-note">Who may need to do or receive what.</div><div class="actor-grid">${actors}</div>`);
+      const elements = legalElements(data);
+      const html = elements.slice(0, 16).map((element) => `
+        <div class="actor-card">
+          <h3>${escapeHtml(element.label)}</h3>
+          <div class="chip-list">${statusChip(element.status)}${chip(element.practice, "muted")}${element.article_point ? chip(element.article_point, "right") : ""}</div>
+        </div>
+      `).join("");
+      setPanel("actorMap", `<div class="viz-note">Legal elements are copied from the reviewed RDF ontology and checked against extracted evidence.</div><div class="actor-grid">${html || chip("no RDF legal elements evaluated", "muted")}</div>`);
     }
 
     function renderRiskMatrix(data) {
-      const risks = data.possible_risks || [];
-      const bucket = { "High impact / higher signal": [], "High impact / lower signal": [], "Lower impact / higher signal": [], "Lower impact / lower signal": [] };
-      risks.forEach((risk) => {
-        const highImpact = /bias|vulnerable|contestability|opacity|automation/i.test(risk.label);
-        const highSignal = (risk.confidence || 0) >= 0.7;
-        const key = highImpact && highSignal ? "High impact / higher signal" : highImpact ? "High impact / lower signal" : highSignal ? "Lower impact / higher signal" : "Lower impact / lower signal";
-        bucket[key].push(risk.label);
+      const bucket = { supported: [], missing: [], uncertain: [], other: [] };
+      legalElements(data).forEach((element) => {
+        const key = bucket[element.status] ? element.status : "other";
+        bucket[key].push(element.label);
       });
       const cells = Object.entries(bucket).map(([title, values]) => `<div class="matrix-cell"><h3>${title}</h3><div class="chip-list">${values.map((v) => chip(v, "risk")).join("") || chip("none detected", "muted")}</div></div>`).join("");
-      setPanel("riskMatrix", `<div class="viz-note">Discussion prioritisation, not a legal conclusion.</div><div class="risk-matrix">${cells}</div>`);
+      setPanel("riskMatrix", `<div class="viz-note">Element status is preliminary evidence support, not a legal conclusion.</div><div class="risk-matrix">${cells}</div>`);
     }
 
     function renderSourceMap(data) {
-      const sources = (data.relevant_ai_act_sources || []).slice(0, 10);
-      const sourceNodes = sources.map((s) => `<div class="source-node"><strong>${escapeHtml(sourceLabel(s.article_number))}</strong><span>${escapeHtml(s.article_heading || "")}</span></div>`).join("");
-      setPanel("sourceMap", `<div class="viz-note">Why the legal sources were pulled into the analysis.</div><div class="source-map"><div class="source-root">Scenario</div><div class="source-rail">${sourceNodes}</div></div>`);
+      const anchors = sourceAnchors(data).slice(0, 10);
+      const sourceNodes = anchors.map((s) => `<div class="source-node"><strong>${escapeHtml(s.label)}</strong><span>${escapeHtml(s.eId || "eId unavailable")}</span><span>${escapeHtml(String(s.legal_status || "current_binding_law").replaceAll("_", " "))}</span></div>`).join("");
+      setPanel("sourceMap", `<div class="viz-note">Source anchors are RDF legal-source links resolved against the validated Akoma Ntoso XML.</div><div class="source-map"><div class="source-root">RDF rule</div><div class="source-rail">${sourceNodes || chip("no source anchors", "muted")}</div></div>`);
     }
 
     function renderQuestionTree(data) {
@@ -298,14 +492,8 @@
     }
 
     function renderObligationMap(data) {
-      const obligations = labelList(data.obligations_to_verify, 20);
-      const groups = {
-        "Article 5 review": obligations.filter((o) => /Article 5|prohibition|criteria/i.test(o)),
-        "Exceptions": obligations.filter((o) => /exception/i.test(o)),
-        "Safeguards": obligations.filter((o) => /safeguard/i.test(o))
-      };
-      const html = Object.entries(groups).map(([title, values]) => `<div class="obligation-column"><h3>${title}</h3>${values.map((v) => chip(v, "obligation")).join("") || chip("none detected", "muted")}</div>`).join("");
-      setPanel("obligationMap", `<div class="viz-note">Article 5 verification tasks for follow-up work.</div><div class="obligation-grid">${html}</div>`);
+      const html = exceptionResults(data).slice(0, 12).map((exception) => `<div class="obligation-column"><h3>${escapeHtml(exception.label)}</h3><div class="chip-list">${statusChip(exception.status)}${(exception.required_conditions || []).map((condition) => chip(condition.label, "obligation")).join("") || chip("no linked condition rows", "muted")}</div></div>`).join("");
+      setPanel("obligationMap", `<div class="viz-note">Exceptions and conditions are shown only when linked in the reviewed RDF ontology.</div><div class="obligation-grid">${html || chip("no RDF exceptions", "muted")}</div>`);
     }
 
     function renderBipartiteMap(data) {
@@ -319,20 +507,22 @@
           (risk.includes("automation") && /human oversight|human explanation/i.test(right)) ||
           (risk.includes("vulnerable") && /non-discrimination|services/i.test(right))
         );
-        return `<div class="bip-row"><div>${chip(risk, "risk")}</div><div class="flow-arrow">-></div><div class="chip-list">${(linked.length ? linked : rights.slice(0, 2)).map((r) => chip(r, "right")).join("")}</div></div>`;
+        return `<div class="bip-row"><div>${chip(risk, "risk")}</div><div class="flow-arrow">-></div><div class="chip-list">${(linked.length ? linked : rights.slice(0, 2)).map((r) => rightChip(r)).join("")}</div></div>`;
       }).join("");
-      setPanel("bipartiteMap", `<div class="viz-note">Rights are taken from the matched Article 5 rule mapping.</div><div class="bipartite">${rows || chip("no Article 5 match", "muted")}</div>`);
+      setPanel("bipartiteMap", `<div class="viz-note">Rights are taken from the matched Article 5 RDF ontology rule.</div><div class="bipartite">${rows || chip("no Article 5 match", "muted")}</div>`);
     }
 
     function renderLifecycleMap(data) {
-      const obligations = labelList(data.obligations_to_verify, 20);
+      const elements = legalElements(data);
+      const exceptions = exceptionResults(data);
+      const anchors = sourceAnchors(data);
       const phases = [
-        ["Describe system", ["identify provider", "identify deployer", "define intended purpose"]],
-        ["Match Article 5", obligations.filter((o) => /Article 5|prohibition|criteria/i.test(o))],
-        ["Check conditions", labelList(data.missing_questions, 4).filter((q) => /trigger|evidence|criteria|practice/i.test(q))],
-        ["Check exceptions", obligations.filter((o) => /exception/i.test(o))],
-        ["Review safeguards", obligations.filter((o) => /safeguard/i.test(o))],
-        ["Human review", ["document uncertainty", "obtain legal review"]]
+        ["Source law", anchors.map((anchor) => anchor.label)],
+        ["RDF practice", matches(data).map((match) => match.label)],
+        ["Supported elements", elements.filter((element) => element.status === "supported").map((element) => element.label)],
+        ["Missing elements", elements.filter((element) => element.status === "missing").map((element) => element.label)],
+        ["Exceptions", exceptions.map((exception) => exception.label)],
+        ["Human review", ["document uncertainty", "legal review required"]]
       ];
       const html = phases.map(([phase, items]) => `<div class="life-phase"><h3>${escapeHtml(phase)}</h3><div class="chip-list">${items.map((i) => chip(i, "muted")).join("") || chip("to define", "muted")}</div></div>`).join("");
       setPanel("lifecycleMap", `<div class="viz-note">Where concerns appear across the AI-system lifecycle.</div><div class="lifecycle">${html}</div>`);
@@ -345,7 +535,7 @@
           <div class="info-block">
             <h3>Project</h3>
             <p><strong>AI Act Prohibitions Checker</strong> is a backend-first legal-design prototype for civic-tech workshops and hackathon demos.</p>
-            <p>It turns a transcript, scenario, or discussion note into a preliminary Article 5 map: possible prohibited-practice matches, actors, contexts, trigger questions, affected rights, source references, traceability, JSON and RDF.</p>
+            <p>It turns a transcript, scenario, or discussion note into a preliminary Article 5 RDF map: candidate prohibited-practice matches, legal-element status, exceptions, conditions, affected rights, source anchors, traceability and JSON.</p>
           </div>
           <div class="info-block warning">
             <h3>Legal boundary</h3>
@@ -357,20 +547,22 @@
               <h3>Pipeline</h3>
               <ol>
                 <li>Normalize text and split it into claims.</li>
-                <li>Detect AI-system signals and Article 5 prohibition keywords with deterministic rules.</li>
-                <li>Map only to explicit Article 5 prohibition rules.</li>
-                <li>Copy targets, contexts, exceptions, safeguards and affected rights from the matched rule mapping.</li>
-                <li>Build traceability from input snippets to Article 5 points.</li>
-                <li>Return machine-readable JSON and visual maps.</li>
+                <li>Validate the Akoma Ntoso AI Act XML source against local schemas.</li>
+                <li>Index Article 3 definitions and Article 5 source anchors.</li>
+                <li>Load the reviewed Article 5 RDF ontology when provided.</li>
+                <li>Return a structured fail-closed response if the legal model is missing.</li>
+                <li>Return machine-readable JSON and ontology-aligned visual maps.</li>
                 <li>Expose RDF/Turtle and JSON-LD ontology exports.</li>
               </ol>
             </div>
             <div class="info-block">
               <h3>Backend modules</h3>
               <ul>
-                <li><code>AKNParser</code>: parses <code>data/aiACT.xml</code>.</li>
-                <li><code>LegalKnowledgeDB</code>: in-memory searchable legal source store.</li>
-                <li><code>RuleEngine</code>: deterministic analysis without an API key.</li>
+                <li><code>AKNValidator</code>: validates <code>reference/akoma-ntoso/aiAct-2024-1689.xml</code>.</li>
+                <li><code>LegalKnowledgeDB</code>: in-memory article store for source endpoints.</li>
+                <li><code>Article5Reasoner</code>: ontology-first analysis path.</li>
+                <li><code>LegalOntologyStore</code>: reviewed RDF ontology loader.</li>
+                <li><code>LegalSourceIndex</code>: Article 3 and Article 5 source anchors.</li>
                 <li><code>OntologyStore</code>: RDF graph with AI Act concepts.</li>
                 <li><code>ReportBuilder</code>: stable JSON, disclaimer, graph data.</li>
                 <li><code>OptionalLLMAgent</code>: optional OpenRouter refinement.</li>
@@ -379,12 +571,12 @@
             <div class="info-block">
               <h3>Current analysis</h3>
               <ul>
-                <li>Actors detected: ${data.detected_actors.length}</li>
-                <li>Contexts detected: ${data.detected_contexts.length}</li>
-                <li>AI functions detected: ${data.detected_ai_functions.length}</li>
+                <li>Legal elements evaluated: ${legalElements(data).length}</li>
+                <li>Supported elements: ${legalElements(data).filter((element) => element.status === "supported").length}</li>
+                <li>Missing elements: ${legalElements(data).filter((element) => element.status === "missing").length}</li>
                 <li>Article 5 matches: ${(data.matched_prohibited_practices || []).length}</li>
-                <li>Risk signals: ${data.possible_risks.length}</li>
-                <li>Sources shown: ${articleCount}</li>
+                <li>RDF exceptions: ${exceptionResults(data).length}</li>
+                <li>Source anchors: ${sourceAnchors(data).length || articleCount}</li>
                 <li>Traceability rows: ${data.traceability.length}</li>
               </ul>
             </div>
@@ -420,7 +612,9 @@
         right: { start: 125, end: 165, radius: 315, limit: 5, r: 47 },
         article: { start: 235, end: 305, radius: 292, limit: 7, r: 43 },
         risk: { start: -35, end: 35, radius: 318, limit: 5, r: 50 },
-        obligation: { start: 48, end: 105, radius: 350, limit: 5, r: 46 }
+        obligation: { start: 48, end: 105, radius: 350, limit: 5, r: 46 },
+        element: { start: -45, end: 58, radius: 330, limit: 10, r: 43 },
+        exception: { start: 72, end: 118, radius: 345, limit: 6, r: 42 }
       };
       Object.entries(bands).forEach(([type, cfg]) => {
         const nodes = graph.nodes.filter((node) => node.type === type).slice(0, cfg.limit);
@@ -588,13 +782,12 @@
       $("citizen").textContent = data.citizen_explanation;
       renderResultStats(data);
       renderProhibitions(data.matched_prohibited_practices || []);
-      list("actors", data.detected_actors);
-      list("contexts", data.detected_contexts);
-      list("functions", data.detected_ai_functions);
-      list("risks", data.possible_risks);
-      list("rights", data.possible_rights_or_interests);
-      list("obligations", data.obligations_to_verify);
+      renderElementSummary(data);
+      renderExceptionSummary(data);
+      renderAnchorSummary(data);
+      listRights("rights", data.possible_rights_or_interests);
       list("questions", data.missing_questions);
+      list("notes", data.notes);
       setupVisualTabs();
       renderAllVisualMaps(data);
       $("sources").innerHTML = "";
