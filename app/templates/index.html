@@ -33,7 +33,7 @@
       <textarea id="text" rows="9">A public authority wants to use an AI system to assign social scores to citizens over time based on social behaviour and predicted personality characteristics. The score may lead to detrimental treatment when people apply for public services.</textarea>
       <div class="actions">
         <input id="file" type="file" accept=".txt">
-        <label><input id="useLlm" type="checkbox"> use LLM for wording only</label>
+        <label><input id="useLlm" type="checkbox"> use LLM for context suggestions and wording</label>
         <button id="analyze">Analyze</button>
       </div>
       <div id="status"></div>
@@ -55,6 +55,7 @@
         <div class="card"><h2>Legal elements</h2><div id="elements"></div></div>
         <div class="card"><h2>Exceptions / conditions</h2><div id="exceptions"></div></div>
         <div class="card"><h2>Source anchors</h2><div id="anchors"></div></div>
+        <div class="card"><h2>Candidate facts</h2><div id="candidateFacts"></div></div>
         <div class="card"><h2>Rights / interests</h2><ul id="rights"></ul></div>
         <div class="card"><h2>Missing evidence</h2><ul id="questions"></ul></div>
         <div class="card"><h2>System notes</h2><ul id="notes"></ul></div>
@@ -389,6 +390,27 @@
       `;
     }
 
+    function renderCandidateFacts(data) {
+      const facts = data.candidate_facts || [];
+      if (!facts.length) {
+        $("candidateFacts").innerHTML = `<div class="empty-state">No candidate facts were extracted.</div>`;
+        return;
+      }
+      $("candidateFacts").innerHTML = `
+        <div class="ontology-list">
+          ${facts.slice(0, 12).map((fact) => `
+            <div class="ontology-list-row">
+              <div>
+                <strong>${escapeHtml(fact.ontology_candidate || fact.label)}</strong>
+                <span>${escapeHtml(fact.evidence?.snippet || "")}</span>
+              </div>
+              ${chip((fact.provenance || "deterministic").replaceAll("_", " "), fact.provenance === "llm_suggested" ? "obligation" : "right")}
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
     function sourceLabel(number) {
       return number === "Annex III" ? "Annex III" : `Article ${number}`;
     }
@@ -683,7 +705,7 @@
                 <li><code>LegalSourceIndex</code>: Article 3 and Article 5 source anchors.</li>
                 <li><code>OntologyStore</code>: RDF graph with AI Act concepts.</li>
                 <li><code>ReportBuilder</code>: stable JSON, disclaimer, graph data.</li>
-                <li><code>OptionalLLMAgent</code>: optional LLM wording refinement.</li>
+                <li><code>OptionalLLMAgent</code>: optional LLM candidate facts and wording refinement.</li>
               </ul>
             </div>
             <div class="info-block">
@@ -923,6 +945,7 @@
       renderElementSummary(data);
       renderExceptionSummary(data);
       renderAnchorSummary(data);
+      renderCandidateFacts(data);
       listRights("rights", data.possible_rights_or_interests);
       list("questions", data.missing_questions);
       list("notes", data.notes);

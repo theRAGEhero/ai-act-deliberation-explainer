@@ -8,7 +8,7 @@ It is built as an ontology-first legal-design explainer:
 - the reviewed RDF/OWL Turtle file is the legal model;
 - deterministic Python code extracts factual signals and checks ontology-defined legal elements;
 - JSON, markdown, graph data, and UI cards are output formats, not sources of law;
-- optional LLM wording refinement can improve explanation text, but cannot create legal findings or replace the deterministic ontology path.
+- optional LLM assistance can suggest contextual facts and improve explanation text, but cannot create legal findings or replace the ontology-gated path.
 
 The app is a discussion, teaching, and issue-spotting tool. It is not legal advice, compliance certification, or a final AI Act risk classification.
 
@@ -78,7 +78,7 @@ ReportBuilder
    +--> browser result hierarchy
    +--> graph nodes/edges
    +--> case RDF preview
-   +--> optional LLM wording refinement
+   +--> optional LLM candidate facts / wording refinement
 ```
 
 ## Academic Design Position
@@ -93,6 +93,7 @@ Not this:
 But this:
 
   input text -> deterministic evidence extraction
+             -> optional LLM-suggested candidate facts
              -> reviewed RDF legal model
              -> validated AKN source anchors
              -> structured preliminary output
@@ -106,7 +107,107 @@ This makes the project easier to defend:
 - **Determinism:** the same input, source XML, and ontology produce the same backend result.
 - **Fail-closed behavior:** missing or invalid legal sources produce `analysis_unavailable`; there is no silent fallback.
 - **Current-law boundary:** Omnibus/proposed/amending material is marked separately and skipped by the active current-law reasoner.
-- **LLM containment:** LLM usage is optional and explanatory only.
+- **LLM containment:** LLM usage is optional, provenance-labelled, and limited to candidate fact suggestions plus wording.
+
+## Deterministic Workflow Boundary
+
+The system separates **context discovery** from **legal validation**.
+
+```text
+                               SAME LEGAL ENGINE IN BOTH MODES
+
+                    +---------------------------------------------+
+                    |  validated AKN source law                   |
+                    |  reference/akoma-ntoso/aiAct-2024-1689.xml  |
+                    +----------------------+----------------------+
+                                           |
+                                           v
+                    +---------------------------------------------+
+                    |  reviewed RDF/OWL Article 5 ontology        |
+                    |  data/ontology/article5_reviewed.ttl        |
+                    +----------------------+----------------------+
+                                           |
+                                           v
+                    +---------------------------------------------+
+                    |  deterministic legal element checker        |
+                    |  supported / missing / exception_possible   |
+                    +----------------------+----------------------+
+                                           |
+                                           v
+                    +---------------------------------------------+
+                    |  Article5Reasoner                           |
+                    |  no JSON rule fallback                      |
+                    |  no LLM-created legal conclusion            |
+                    +----------------------+----------------------+
+                                           |
+                                           v
+                    +---------------------------------------------+
+                    |  structured AnalysisResponse                |
+                    |  traceability + source anchors + disclaimer |
+                    +---------------------------------------------+
+```
+
+The only optional variation is how candidate facts are discovered before the legal checker runs:
+
+```text
+DETERMINISTIC MODE
+
+  user text
+     |
+     v
+  regex / controlled vocabulary extractor
+     |
+     v
+  candidate_facts[]
+     provenance = "deterministic"
+     |
+     v
+  RDF/AKN-gated legal validation
+
+
+LLM-ASSISTED MODE
+
+  user text
+     |
+     +------------------------------+
+     |                              |
+     v                              v
+  deterministic extractor       LLM candidate-fact extractor
+     |                              |
+     |                              v
+     |                         JSON candidate facts only
+     |                         exact evidence snippets required
+     |                         allowed ontology candidates only
+     |                              |
+     +--------------+---------------+
+                    |
+                    v
+             backend validation gate
+             rejects unsupported or unevidenced facts
+                    |
+                    v
+             candidate_facts[]
+             provenance = "deterministic" or "llm_suggested"
+                    |
+                    v
+             RDF/AKN-gated legal validation
+```
+
+The LLM can therefore help with language such as:
+
+```text
+"boss of the farm"       -> suggested Workplace context
+"cameras connected to AI" -> suggested CameraMonitoring context
+"animals eat the plants" -> suggested AnimalPlantTarget
+```
+
+But it cannot do this:
+
+```text
+"boss of the farm" -> Article 5 violation
+```
+
+The backend still requires ontology-defined legal elements and source-law anchors before it reports a grounded Article 5 candidate.
 
 ## Public Deployment
 
@@ -140,7 +241,7 @@ app/
   analysis/
     input_processor.py          Builds CaseInput from user text
     report_builder.py           Converts PreliminaryAnalysis to API/UI output
-    llm_agent.py                Optional LLM wording refinement
+    llm_agent.py                Optional LLM candidate facts and wording refinement
     prompt_templates.py         LLM prompt text
 
   legal_source/
@@ -347,25 +448,48 @@ raw_rule_output.status: "analysis_unavailable"
 
 This is intentional. It prevents the app from silently substituting a weaker legal source.
 
-## Optional LLM Wording Refinement
+## Optional LLM Candidate-Fact Assistance
 
-The deterministic ontology-first result is produced before any LLM step.
+The backend can use the LLM in two limited ways when `use_llm=true` and a provider is configured:
+
+1. candidate-fact assistance before legal-element checking;
+2. wording refinement after deterministic analysis.
+
+The LLM does not decide whether Article 5 applies.
 
 ```text
-Deterministic PreliminaryAnalysis
+User text
           |
-          +-- if use_llm=false --> ReportBuilder
+          +-- deterministic facts always run
           |
           +-- if use_llm=true and provider configured
                     |
                     v
-             LLM wording refinement
+             LLM suggests candidate facts
+             evidence snippets must appear in the input text
+             unsupported ontology candidates are rejected
                     |
                     v
-             citizen_explanation only
+             Article5Reasoner checks facts against RDF elements
+                    |
+                    v
+             optional LLM wording refinement
 ```
 
-The LLM receives:
+Accepted LLM-suggested facts are marked with:
+
+```text
+provenance: "llm_suggested"
+```
+
+The LLM fact extractor receives:
+
+- the user text;
+- an allowed list of candidate ontology/context labels.
+
+It must return exact evidence snippets copied from the input. The backend rejects unsupported candidates and candidates without direct evidence.
+
+The LLM wording refiner receives:
 
 - the user text;
 - the deterministic preliminary output;
@@ -382,6 +506,21 @@ It is instructed not to invent:
 - targets;
 - exceptions;
 - legal elements.
+
+Example broad-context behavior:
+
+```text
+Input: "In a farm, the boss of the farm wants to put cameras connected to AI to check if animals eat the plants."
+
+LLM may suggest:
+  Workplace context       evidence: "boss of the farm"
+  Camera monitoring       evidence: "cameras connected to AI"
+  Animal/plant target     evidence: "animals eat the plants"
+
+Backend result:
+  No grounded Article 5 prohibited-practice match unless RDF-required elements are supported.
+  Missing questions ask whether workers are recorded, evaluated, identified, emotionally analyzed, or subject to decisions.
+```
 
 Environment variables currently use OpenRouter naming because the configured provider exposes an OpenAI-compatible endpoint:
 
@@ -403,7 +542,7 @@ The UI supports:
 
 - direct text input;
 - `.txt` upload;
-- optional LLM wording refinement;
+- optional LLM context suggestions and wording refinement;
 - result cards for matched practices;
 - legal element status display;
 - exception/condition display;
@@ -454,6 +593,7 @@ Important fields:
 
 ```text
 case_summary
+candidate_facts
 matched_prohibited_practices
 detected_actors
 detected_contexts
@@ -736,6 +876,7 @@ The test suite covers:
 - reviewed ontology loading/validation;
 - fail-closed analysis when ontology/source configuration is unavailable;
 - no dependency on the removed legacy JSON rule path;
+- LLM-suggested candidate facts remain provenance-labelled and cannot create Article 5 matches by themselves;
 - API health and analyze behavior;
 - input length validation;
 - broad ontology export generation.
@@ -778,7 +919,7 @@ Recommended next hardening:
 - The reviewed ontology contains Omnibus/proposed/amending material, but active analysis skips it unless explicitly changed in code.
 - Some source anchors may not expose every nested `eId` depending on AKN structure.
 - Uploaded text is processed in memory and is not persisted by the application.
-- Optional LLM wording refinement may send user text to the configured provider if enabled.
+- Optional LLM candidate-fact assistance and wording refinement may send user text to the configured provider if enabled.
 
 ## Design Boundary
 

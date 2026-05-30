@@ -61,7 +61,8 @@ def analyze(payload: CaseInputRequest):
     if not payload.text:
         raise HTTPException(status_code=400, detail="Text is required")
     case_input = build_case_input(payload.text, payload.title, payload.persona)
-    preliminary = article5_reasoner.analyze(case_input)
+    suggested_facts = llm_agent.extract_candidate_facts(payload.text) if payload.use_llm and article5_reasoner.available else []
+    preliminary = article5_reasoner.analyze(case_input, suggested_facts)
     llm_output = None
     if payload.use_llm and "analysis_unavailable" not in preliminary.notes:
         llm_output = llm_agent.refine(

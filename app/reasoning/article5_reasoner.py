@@ -4,6 +4,7 @@ from app.legal_source.akn_validator import AKNValidationResult
 from app.legal_source.source_index import LegalSourceIndex, SourceNode
 from app.models import (
     CaseInput,
+    CandidateFact,
     DetectedItem,
     EvidenceSupport,
     ExceptionResult,
@@ -30,12 +31,13 @@ class Article5Reasoner:
     def available(self) -> bool:
         return not self._unavailable_reasons()
 
-    def analyze(self, case_input: CaseInput) -> PreliminaryAnalysis:
+    def analyze(self, case_input: CaseInput, suggested_facts: list[CandidateFact] | None = None) -> PreliminaryAnalysis:
         reasons = self._unavailable_reasons()
         if reasons:
             return self._analysis_unavailable(reasons)
 
-        facts = self.fact_extractor.extract(case_input.raw_text)
+        deterministic_facts = self.fact_extractor.extract(case_input.raw_text)
+        facts = self.fact_extractor.merge(deterministic_facts, suggested_facts)
         matches: list[ProhibitedPracticeMatch] = []
         trace: list[TraceabilityItem] = []
         skipped_omnibus = 0
@@ -69,10 +71,11 @@ class Article5Reasoner:
         sources = self._article_5_sources()
         return PreliminaryAnalysis(
             case_summary="No Article 5 ontology-supported match was detected." if not matches else "Article 5 ontology review produced candidate matches.",
+            candidate_facts=facts,
             matched_prohibited_practices=matches,
-            detected_actors=[],
-            detected_contexts=[],
-            detected_ai_functions=[],
+            detected_actors=self._detected_items(facts, "actor"),
+            detected_contexts=self._detected_items(facts, "context"),
+            detected_ai_functions=self._detected_items(facts, "system_or_function"),
             possible_risks=[
                 DetectedItem(label=match.label, category="ontology_prohibited_practice_candidate", evidence=match.evidence, confidence=match.confidence, status=match.status)
                 for match in matches
@@ -82,11 +85,14 @@ class Article5Reasoner:
                 for right in dict.fromkeys(right for match in matches for right in match.affected_rights)
             ],
             obligations_to_verify=[],
-            missing_questions=self._missing_questions(matches),
+            missing_questions=self._missing_questions(matches, facts),
             relevant_ai_act_sources=sources,
-            traceability=trace,
+            traceability=trace or self._trace_for_candidate_facts(facts),
             notes=[
                 "Ontology-first path used. No JSON rule fallback was used.",
+                "LLM-suggested candidate facts were used as evidence inputs; Article 5 legal validation remained RDF/AKN-gated."
+                if any(fact.provenance == "llm_suggested" for fact in facts)
+                else "No LLM-suggested candidate facts were used.",
                 f"Skipped {skipped_omnibus} Omnibus/proposed/amending practice(s) because active analysis is current binding AI Act law only."
                 if skipped_omnibus
                 else "No Omnibus/proposed/amending practices were evaluated.",
@@ -209,6 +215,28 @@ class Article5Reasoner:
             return f"{anchor.article}({anchor.paragraph})({anchor.point})"
         return anchor.article
 
+    def _detected_items(self, facts: list[CandidateFact], fact_type: str) -> list[DetectedItem]:
+        items = []
+        seen = set()
+        for fact in facts:
+            if fact.type != fact_type:
+                continue
+            label = fact.ontology_candidate or fact.label
+            key = (label, fact.provenance)
+            if key in seen:
+                continue
+            seen.add(key)
+            items.append(
+                DetectedItem(
+                    label=label,
+                    category=f"{fact.provenance}_{fact.type}",
+                    evidence=[fact.evidence.snippet],
+                    confidence=fact.confidence or fact.evidence.confidence,
+                    status=fact.provenance,
+                )
+            )
+        return items
+
     def _trace_for_match(self, match: ProhibitedPracticeMatch) -> list[TraceabilityItem]:
         traces = []
         for element in match.legal_elements:
@@ -226,7 +254,22 @@ class Article5Reasoner:
                 )
         return traces
 
-    def _missing_questions(self, matches: list[ProhibitedPracticeMatch]) -> list[str]:
+    def _trace_for_candidate_facts(self, facts: list[CandidateFact]) -> list[TraceabilityItem]:
+        if not any(fact.provenance == "llm_suggested" for fact in facts):
+            return []
+        return [
+            TraceabilityItem(
+                input_snippet=fact.evidence.snippet,
+                detected_concept=fact.ontology_candidate or fact.label,
+                relevant_source=None,
+                confidence=fact.confidence or fact.evidence.confidence,
+                note=f"Candidate fact provenance: {fact.provenance}. This is not an Article 5 legal conclusion.",
+            )
+            for fact in facts
+            if fact.provenance == "llm_suggested"
+        ]
+
+    def _missing_questions(self, matches: list[ProhibitedPracticeMatch], facts: list[CandidateFact]) -> list[str]:
         questions = []
         for match in matches:
             for element in match.legal_elements:
@@ -234,4 +277,12 @@ class Article5Reasoner:
                     questions.append(element.missing_question)
         if questions or matches:
             return questions
+        contextual_ids = {fact.id for fact in facts}
+        if {"camera_monitoring", "workplace_context"} & contextual_ids:
+            return [
+                "Are workers recorded by the AI-connected camera system?",
+                "Is the AI used to evaluate worker behaviour or performance?",
+                "Does the system infer emotions, identity, biometric traits, or sensitive characteristics of people?",
+                "Are decisions taken about workers based on the system output?",
+            ]
         return ["No reviewed Article 5 ontology element was supported by the extracted facts."]

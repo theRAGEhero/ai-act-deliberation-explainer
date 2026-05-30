@@ -84,6 +84,18 @@ class EvidenceSupport(BaseModel):
     confidence: float = 0.0
 
 
+class CandidateFact(BaseModel):
+    id: str
+    label: str
+    type: str = "signal"
+    ontology_candidate: str | None = None
+    evidence: EvidenceSupport
+    confidence: float = 0.0
+    provenance: str = "deterministic"
+    accepted: bool = True
+    note: str | None = None
+
+
 class LegalElementResult(BaseModel):
     id: str
     label: str
@@ -137,6 +149,7 @@ class ProhibitedPracticeMatch(BaseModel):
 
 class PreliminaryAnalysis(BaseModel):
     case_summary: str
+    candidate_facts: list[CandidateFact] = Field(default_factory=list)
     matched_prohibited_practices: list[ProhibitedPracticeMatch] = Field(default_factory=list)
     detected_actors: list[DetectedItem] = Field(default_factory=list)
     detected_contexts: list[DetectedItem] = Field(default_factory=list)
@@ -157,6 +170,7 @@ class GraphView(BaseModel):
 
 class AnalysisResponse(BaseModel):
     case_summary: str
+    candidate_facts: list[CandidateFact] = Field(default_factory=list)
     matched_prohibited_practices: list[ProhibitedPracticeMatch] = Field(default_factory=list)
     detected_actors: list[DetectedItem]
     detected_contexts: list[DetectedItem]

@@ -19,6 +19,7 @@ class ReportBuilder:
             }
         return AnalysisResponse(
             case_summary=preliminary.case_summary,
+            candidate_facts=preliminary.candidate_facts,
             matched_prohibited_practices=preliminary.matched_prohibited_practices,
             detected_actors=preliminary.detected_actors,
             detected_contexts=preliminary.detected_contexts,

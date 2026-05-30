@@ -3,8 +3,9 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from app.analysis.llm_agent import OptionalLLMAgent
 from app.main import analyze, health
-from app.models import MAX_TEXT_LENGTH, CaseInputRequest
+from app.models import MAX_TEXT_LENGTH, CandidateFact, CaseInputRequest, EvidenceSupport
 
 
 def test_health():
@@ -64,6 +65,72 @@ def test_university_emotion_inference_maps_to_education_not_workplace():
     assert statuses["targets: Student"] == "supported"
     assert statuses["occurs In Context: Education institution"] == "supported"
     assert response.missing_questions == []
+
+
+def test_llm_suggested_farm_context_does_not_create_article_5_match(monkeypatch):
+    def fake_extract(_text):
+        return [
+            CandidateFact(
+                id="workplace_context",
+                label="workplace context",
+                type="context",
+                ontology_candidate="Workplace",
+                evidence=EvidenceSupport(snippet="boss of the farm", source="llm", confidence=0.62),
+                confidence=0.62,
+                provenance="llm_suggested",
+            ),
+            CandidateFact(
+                id="camera_monitoring",
+                label="camera-based monitoring",
+                type="context",
+                ontology_candidate="CameraMonitoring",
+                evidence=EvidenceSupport(snippet="cameras connected to AI", source="llm", confidence=0.7),
+                confidence=0.7,
+                provenance="llm_suggested",
+            ),
+            CandidateFact(
+                id="animal_plant_target",
+                label="animals or plants as stated target",
+                type="target",
+                ontology_candidate="AnimalPlantTarget",
+                evidence=EvidenceSupport(snippet="animals eat the plants", source="llm", confidence=0.74),
+                confidence=0.74,
+                provenance="llm_suggested",
+            ),
+        ]
+
+    monkeypatch.setattr("app.main.llm_agent.extract_candidate_facts", fake_extract)
+    response = analyze(CaseInputRequest(text="In a farm, the boss of the farm wants to put cameras connected to AI to check if animals eat the plants.", use_llm=True))
+    assert response.matched_prohibited_practices == []
+    assert response.case_summary == "No Article 5 ontology-supported match was detected."
+    assert any(fact.provenance == "llm_suggested" for fact in response.candidate_facts)
+    assert "Are workers recorded by the AI-connected camera system?" in response.missing_questions
+    assert any("LLM-suggested candidate facts were used" in note for note in response.notes)
+
+
+def test_llm_fact_validation_rejects_unsupported_legal_inference():
+    agent = OptionalLLMAgent()
+    payload = {
+        "candidate_facts": [
+            {
+                "ontology_candidate": "EmotionRecognitionSystem",
+                "evidence": "cameras connected to AI",
+                "confidence": 0.9,
+            },
+            {
+                "ontology_candidate": "Workplace",
+                "evidence": "boss of the farm",
+                "confidence": 0.62,
+            },
+            {
+                "ontology_candidate": "MadeUpLegalConcept",
+                "evidence": "boss of the farm",
+                "confidence": 0.8,
+            },
+        ]
+    }
+    facts = agent._validated_candidate_facts("The boss of the farm wants to put cameras connected to AI near the field.", payload)
+    assert [fact.ontology_candidate for fact in facts] == ["Workplace"]
 
 
 def test_weak_input_does_not_create_legal_map():
