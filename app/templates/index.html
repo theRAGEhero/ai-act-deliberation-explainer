@@ -33,7 +33,7 @@
       <textarea id="text" rows="9">A public authority wants to use an AI system to assign social scores to citizens over time based on social behaviour and predicted personality characteristics. The score may lead to detrimental treatment when people apply for public services.</textarea>
       <div class="actions">
         <input id="file" type="file" accept=".txt">
-        <label><input id="useLlm" type="checkbox"> refine with OpenRouter</label>
+        <label><input id="useLlm" type="checkbox"> use LLM for wording only</label>
         <button id="analyze">Analyze</button>
       </div>
       <div id="status"></div>
@@ -66,6 +66,8 @@
         </div>
         <div id="visualTabs" class="visual-tabs">
           <button type="button" class="visual-tab active" data-view="network">Network</button>
+          <button type="button" class="visual-tab" data-view="caseResult">Case result</button>
+          <button type="button" class="visual-tab" data-view="ontologyMap">Ontology map</button>
           <button type="button" class="visual-tab" data-view="traceFlow">Trace flow</button>
           <button type="button" class="visual-tab" data-view="actorMap">Legal elements</button>
           <button type="button" class="visual-tab" data-view="riskMatrix">Element status</button>
@@ -84,6 +86,8 @@
           <div id="graphDetails" class="graph-details">Select a node to inspect it.</div>
         </div>
         <div id="traceFlow" class="visual-panel" data-panel="traceFlow"></div>
+        <div id="caseResult" class="visual-panel" data-panel="caseResult"></div>
+        <div id="ontologyMap" class="visual-panel" data-panel="ontologyMap"></div>
         <div id="actorMap" class="visual-panel" data-panel="actorMap"></div>
         <div id="riskMatrix" class="visual-panel" data-panel="riskMatrix"></div>
         <div id="sourceMap" class="visual-panel" data-panel="sourceMap"></div>
@@ -103,6 +107,8 @@
   </main>
   <script>
     const $ = (id) => document.getElementById(id);
+    let currentData = null;
+    let selectedPracticeId = null;
     const list = (id, values) => {
       $(id).innerHTML = "";
       if (!values || !values.length) {
@@ -233,7 +239,7 @@
               <div class="element-row">
                 <div>${escapeHtml(element.label)}</div>
                 <div>${statusChip(element.status)}</div>
-                <div>${(element.evidence || []).map((item) => chip(item.snippet || item, "muted")).join("") || (element.missing_question ? escapeHtml(element.missing_question) : "No evidence snippet.")}</div>
+                <div>${(element.evidence || []).slice(0, 2).map((item) => chip(item.snippet || item, "muted")).join("") || (element.missing_question ? escapeHtml(element.missing_question) : "No evidence snippet.")}</div>
               </div>
             `).join("")}
           </div>
@@ -317,6 +323,18 @@
       return matches(data).flatMap((match) => (match.source_anchors || []).map((anchor) => ({ ...anchor, practice: match.label })));
     }
 
+    function selectedMatch() {
+      const all = matches(currentData || {});
+      return all.find((match) => match.id === selectedPracticeId) || all[0] || null;
+    }
+
+    function selectPractice(id) {
+      selectedPracticeId = id;
+      renderProhibitions(matches(currentData || {}));
+      renderCaseResult(currentData || {});
+      renderKnowledgeGraph((currentData || {}).graph);
+    }
+
     function renderElementSummary(data) {
       const elements = legalElements(data);
       if (!elements.length) {
@@ -388,8 +406,10 @@
       });
     }
 
-    function renderAllVisualMaps(data) {
+    async function renderAllVisualMaps(data) {
       renderKnowledgeGraph(data.graph);
+      renderCaseResult(data);
+      await renderOntologyMap(data);
       renderTraceFlow(data);
       renderActorMap(data);
       renderRiskMatrix(data);
@@ -424,26 +444,51 @@
         $("prohibitions").innerHTML = `<div class="empty-state">No grounded Article 5 prohibited-practice match was detected.</div>`;
         return;
       }
-      $("prohibitions").innerHTML = matches.map((match) => `
-        <article class="prohibition-card">
-          <div>
-            <h3>${escapeHtml(match.label)} <span>${escapeHtml(match.article_point)}</span></h3>
-            <div class="law-status">${statusChip(match.legal_basis_status || "current_binding_law")}</div>
-            <p>Evidence: ${(match.evidence || []).map((item) => chip(item, "risk")).join("") || chip("to verify", "muted")}</p>
-          </div>
-          <div class="prohibition-grid">
-            <div><strong>Targets</strong>${(match.targets || []).map((item) => chip(item, "muted")).join("") || chip("none defined", "muted")}</div>
-            <div><strong>Contexts</strong>${(match.contexts || []).map((item) => chip(item, "muted")).join("") || chip("none defined", "muted")}</div>
-            <div><strong>Affected rights</strong>${(match.affected_rights || []).map((item) => rightChip(item)).join("") || chip("none defined", "muted")}</div>
-            <div><strong>Exceptions</strong>${(match.exceptions || []).map((item) => chip(item, "obligation")).join("") || chip("none defined", "muted")}</div>
-          </div>
-          <div class="ontology-details">
-            ${renderLegalElements(match.legal_elements)}
-            ${renderExceptionResults(match.exception_results)}
-            ${renderSourceAnchors(match.source_anchors)}
-          </div>
-        </article>
-      `).join("");
+      if (!selectedPracticeId || !matches.some((match) => match.id === selectedPracticeId)) {
+        selectedPracticeId = matches[0].id;
+      }
+      const selected = selectedMatch();
+      $("prohibitions").innerHTML = `
+        <div class="case-workbench">
+          <nav class="practice-selector" aria-label="Article 5 candidate matches">
+            ${matches.map((match, index) => `
+              <button type="button" class="practice-button ${match.id === selectedPracticeId ? "active" : ""}" data-practice-id="${escapeHtml(match.id)}">
+                <span>${index + 1}</span>
+                <strong>${escapeHtml(match.label)}</strong>
+                <small>${escapeHtml(match.article_point)} · ${escapeHtml(String(match.legal_basis_status || "current_binding_law").replaceAll("_", " "))}</small>
+              </button>
+            `).join("")}
+          </nav>
+          <article class="prohibition-card selected-practice">
+            ${renderPracticeDetail(selected)}
+          </article>
+        </div>
+      `;
+      document.querySelectorAll(".practice-button").forEach((button) => {
+        button.onclick = () => selectPractice(button.dataset.practiceId);
+      });
+    }
+
+    function renderPracticeDetail(match) {
+      if (!match) return `<div class="empty-state">Select an Article 5 candidate match.</div>`;
+      return `
+        <div>
+          <h3>${escapeHtml(match.label)} <span>${escapeHtml(match.article_point)}</span></h3>
+          <div class="law-status">${statusChip(match.legal_basis_status || "current_binding_law")}</div>
+          <p>Evidence: ${(match.evidence || []).slice(0, 2).map((item) => chip(item, "risk")).join("") || chip("to verify", "muted")}</p>
+        </div>
+        <div class="prohibition-grid">
+          <div><strong>Affected rights</strong>${(match.affected_rights || []).map((item) => rightChip(item)).join("") || chip("none defined", "muted")}</div>
+          <div><strong>Source anchors</strong>${(match.source_anchors || []).map((anchor) => chip(anchor.label, anchor.legal_status === "current_binding_law" ? "right" : "obligation")).join("") || chip("none defined", "muted")}</div>
+          <div><strong>Legal elements</strong>${chip(`${(match.legal_elements || []).filter((item) => item.status === "supported").length} supported`, "right")}${chip(`${(match.legal_elements || []).filter((item) => item.status === "missing").length} missing`, "obligation")}</div>
+          <div><strong>Exceptions</strong>${(match.exception_results || []).map((item) => chip(item.label, "obligation")).join("") || chip("none defined", "muted")}</div>
+        </div>
+        <div class="ontology-details">
+          ${renderLegalElements(match.legal_elements)}
+          ${renderExceptionResults(match.exception_results)}
+          ${renderSourceAnchors(match.source_anchors)}
+        </div>
+      `;
     }
 
     function renderTraceFlow(data) {
@@ -457,6 +502,79 @@
         </div>
       `).join("");
       setPanel("traceFlow", `<div class="viz-note">Audit path from text to legal source.</div><div class="flow-list">${rows}</div>`);
+    }
+
+    function renderCaseResult(data) {
+      const match = selectedMatch();
+      if (!match) {
+        setPanel("caseResult", `<div class="empty-state">No Article 5 candidate match is available for this case.</div>`);
+        return;
+      }
+      setPanel("caseResult", `
+        <div class="case-result-layout">
+          <div class="case-result-main">
+            <div class="viz-note">Case-specific output for the selected Article 5 RDF practice.</div>
+            ${renderPracticeDetail(match)}
+          </div>
+          <aside class="case-result-aside">
+            <h3>Selected Practice</h3>
+            <div class="chip-list">${chip(match.article_point, "right")}${statusChip(match.legal_basis_status || "current_binding_law")}</div>
+            <h3>Affected Rights</h3>
+            <div class="chip-list">${(match.affected_rights || []).map((right) => rightChip(right)).join("") || chip("none defined", "muted")}</div>
+            <h3>AKN Anchors</h3>
+            <div class="chip-list">${(match.source_anchors || []).map((anchor) => chip(anchor.eId || anchor.label, "muted")).join("") || chip("none defined", "muted")}</div>
+          </aside>
+        </div>
+      `);
+    }
+
+    async function renderOntologyMap(data) {
+      const current = matches(data).filter((match) => match.legal_basis_status === "current_binding_law");
+      const omitted = (data.notes || []).find((note) => /Skipped \d+ Omnibus/i.test(note));
+      let ontologyStatus = "";
+      try {
+        const response = await fetch("/api/health");
+        if (response.ok) {
+          const health = await response.json();
+          ontologyStatus = `
+            <div class="ontology-status-grid">
+              <span><strong>${escapeHtml(health.active_analysis_path || "ontology_first_article5")}</strong>Analysis path</span>
+              <span><strong>${health.legal_ontology_loaded ? "Loaded" : "Missing"}</strong>Legal ontology</span>
+              <span><strong>${health.legal_ontology_valid ? "Valid" : "Invalid"}</strong>Ontology validation</span>
+              <span><strong>${health.analysis_available ? "Available" : "Unavailable"}</strong>Analysis</span>
+            </div>
+          `;
+        }
+      } catch (error) {
+        ontologyStatus = `<div class="empty-state">Ontology health status could not be loaded.</div>`;
+      }
+      setPanel("ontologyMap", `
+        <div class="viz-note">Static RDF/legal-model view. Current case results remain separate from proposed or amending material.</div>
+        ${ontologyStatus}
+        <div class="ontology-map-layout">
+          <section>
+            <h3>Current-Law Candidate Practices In This Case</h3>
+            <div class="ontology-list">
+              ${current.map((match) => `
+                <button type="button" class="ontology-practice-row ${match.id === selectedPracticeId ? "active" : ""}" data-practice-id="${escapeHtml(match.id)}">
+                  <strong>${escapeHtml(match.label)}</strong>
+                  <span>${escapeHtml(match.article_point)} · ${(match.legal_elements || []).length} legal element(s) · ${(match.source_anchors || []).length} source anchor(s)</span>
+                </button>
+              `).join("") || `<div class="empty-state">No current-law RDF practice matched this case.</div>`}
+            </div>
+          </section>
+          <section>
+            <h3>Proposed / Amending Material</h3>
+            <details class="omnibus-box">
+              <summary>Separated from current-law analysis</summary>
+              <p>${escapeHtml(omitted || "No proposed or amending practice was reported by this analysis.")}</p>
+            </details>
+          </section>
+        </div>
+      `);
+      document.querySelectorAll(".ontology-practice-row").forEach((button) => {
+        button.onclick = () => selectPractice(button.dataset.practiceId);
+      });
     }
 
     function renderActorMap(data) {
@@ -565,7 +683,7 @@
                 <li><code>LegalSourceIndex</code>: Article 3 and Article 5 source anchors.</li>
                 <li><code>OntologyStore</code>: RDF graph with AI Act concepts.</li>
                 <li><code>ReportBuilder</code>: stable JSON, disclaimer, graph data.</li>
-                <li><code>OptionalLLMAgent</code>: optional OpenRouter refinement.</li>
+                <li><code>OptionalLLMAgent</code>: optional LLM wording refinement.</li>
               </ul>
             </div>
             <div class="info-block">
@@ -648,6 +766,7 @@
       const svg = $("knowledgeGraph");
       svg.innerHTML = "";
       if (!graph || !graph.nodes || !graph.nodes.length) return;
+      graph = filterGraphForSelectedPractice(graph);
       const nodes = layoutGraph(graph);
       const visibleIds = new Set(Object.keys(nodes).filter((id) => Number.isFinite(nodes[id].x)));
       const edges = graph.edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
@@ -711,6 +830,23 @@
         enableNodeDrag(svg, group, node, nodes, edgeElements);
         svg.appendChild(group);
       });
+    }
+
+    function filterGraphForSelectedPractice(graph) {
+      if (!selectedPracticeId) return graph;
+      const selectedNodeId = `prohibition_${selectedPracticeId}`;
+      if (!(graph.nodes || []).some((node) => node.id === selectedNodeId)) return graph;
+      const keepIds = new Set(["scenario", selectedNodeId]);
+      (graph.edges || []).forEach((edge) => {
+        if (edge.source === selectedNodeId || edge.target === selectedNodeId || (edge.source === "scenario" && edge.target === selectedNodeId)) {
+          keepIds.add(edge.source);
+          keepIds.add(edge.target);
+        }
+      });
+      return {
+        nodes: (graph.nodes || []).filter((node) => keepIds.has(node.id)),
+        edges: (graph.edges || []).filter((edge) => keepIds.has(edge.source) && keepIds.has(edge.target))
+      };
     }
 
     function showGraphDetails(data) {
@@ -777,6 +913,8 @@
       const data = await res.json();
       $("status").textContent = res.ok ? "" : JSON.stringify(data);
       if (!res.ok) return;
+      currentData = data;
+      selectedPracticeId = matches(data)[0]?.id || null;
       $("output").hidden = false;
       $("summary").textContent = data.case_summary;
       $("citizen").textContent = data.citizen_explanation;
@@ -789,7 +927,7 @@
       list("questions", data.missing_questions);
       list("notes", data.notes);
       setupVisualTabs();
-      renderAllVisualMaps(data);
+      await renderAllVisualMaps(data);
       $("sources").innerHTML = "";
       if (!data.relevant_ai_act_sources.length) {
         const li = document.createElement("li");

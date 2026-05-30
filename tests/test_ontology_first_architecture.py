@@ -95,7 +95,7 @@ def test_article5_reasoner_fails_closed_when_ontology_missing(tmp_path):
     assert result.matched_prohibited_practices == []
 
 
-def test_article5_reasoner_does_not_depend_on_seed_prohibitions(tmp_path):
+def test_article5_reasoner_does_not_depend_on_legacy_json_rules(tmp_path):
     validation = validate_akn_xml(AKN, XSD, XML_XSD)
     if not validation.is_valid:
         return

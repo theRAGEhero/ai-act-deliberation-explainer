@@ -167,6 +167,7 @@ class AnalysisResponse(BaseModel):
     missing_questions: list[str]
     relevant_ai_act_sources: list[LegalSourceRef]
     traceability: list[TraceabilityItem]
+    notes: list[str] = Field(default_factory=list)
     citizen_explanation: str
     disclaimer: str
     raw_rule_output: dict[str, Any]

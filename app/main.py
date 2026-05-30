@@ -135,7 +135,7 @@ def health():
         "legal_ontology_loaded": legal_ontology_store.status.loaded,
         "legal_ontology_valid": legal_ontology_store.status.is_valid,
         "legal_ontology_status": legal_ontology_store.status.model_dump(),
-        "seed_prohibitions_unused_by_active_analysis_path": True,
+        "legacy_json_rule_path_removed": True,
         "articles_parsed": len([a for a in corpus.articles if a.source_type == "AKN"]),
         "legal_source_warnings": corpus.warnings,
         "ontology_triples_count": len(ontology_store.get_graph()),

@@ -29,6 +29,7 @@ class ReportBuilder:
             missing_questions=preliminary.missing_questions,
             relevant_ai_act_sources=preliminary.relevant_ai_act_sources,
             traceability=preliminary.traceability,
+            notes=preliminary.notes,
             citizen_explanation=llm_output.get("citizen_explanation") if llm_output and llm_output.get("citizen_explanation") else citizen,
             disclaimer=self._disclaimer(preliminary),
             raw_rule_output=raw_output,

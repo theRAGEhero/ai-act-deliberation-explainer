@@ -1,205 +1,427 @@
 # AI Act Prohibitions Checker
 
-AI Act Prohibitions Checker is a FastAPI application that turns a short AI-use scenario, meeting note, or transcript into a preliminary legal-design map under the EU AI Act.
+AI Act Prohibitions Checker is a FastAPI web application for mapping a short AI-use scenario to possible EU AI Act Article 5 prohibited-practice signals.
 
-A traceable, ontology-assisted approach to evaluate whether an AI system is prohibited under the AI Act.
+It is built as an ontology-first legal-design explainer:
 
-The app is designed to support discussion, teaching, workshops, and early issue spotting. It connects four layers:
+- the Akoma Ntoso XML file is the source-law layer;
+- the reviewed RDF/OWL Turtle file is the legal model;
+- deterministic Python code extracts factual signals and checks ontology-defined legal elements;
+- JSON, markdown, graph data, and UI cards are output formats, not sources of law;
+- optional LLM wording refinement can improve explanation text, but cannot create legal findings or replace the deterministic ontology path.
 
-- citizen-readable explanations
-- deterministic ontology-first legal-design signals
-- AI Act source references
-- machine-readable ontology output
+The app is a discussion, teaching, and issue-spotting tool. It is not legal advice, compliance certification, or a final AI Act risk classification.
 
-It does not provide legal advice, certify compliance, or decide whether an AI system is legal, illegal, compliant, or non-compliant.
+## System Overview
 
-## What The App Does
+```text
+                          Repository / Runtime Boundaries
 
-Given a text input, the app:
+  reference/akoma-ntoso/                 data/ontology/
+  ----------------------                 --------------
+  AI Act XML source law                  reviewed Article 5 RDF/OWL model
+  AKN schema files                       current-law + separately marked amendments
+           |                                      |
+           v                                      v
+  app/legal_source/                     app/ontology/
+  -----------------                     -------------
+  XSD validation                        Turtle loading
+  Article 3/5 source indexing           vocabulary validation
+  FRBR / CELEX / eId anchors            practice/element/right/exception queries
+           |                                      |
+           +------------------+-------------------+
+                              |
+                              v
+                    app/reasoning/
+                    --------------
+                    deterministic fact extraction
+                    legal element status checks
+                    Article 5 candidate assembly
+                              |
+                              v
+                    app/analysis/report_builder.py
+                    -------------------------------
+                    API JSON, markdown, graph, UI data
+```
 
-1. Normalizes the text and splits it into claims.
-2. Extracts candidate factual signals without making a legal conclusion.
-3. Validates and indexes the Akoma Ntoso AI Act source-law file.
-4. Loads the reviewed Article 5 RDF ontology from `data/ontology/`.
-5. Checks only the legal elements, rights, exceptions, conditions, and source anchors defined in that RDF.
-6. Separates current binding AI Act material from Omnibus/proposed/amending material.
-7. Builds a traceability table from input snippets to ontology elements and Article 5 source anchors.
-8. Produces a citizen-facing explanation.
-9. Exposes the result as JSON.
-10. Exposes RDF ontology exports as Turtle and JSON-LD.
-11. Shows visual maps in the browser, including network, trace-flow, actor, risk, source, obligation, lifecycle, and question views.
+The active legal-analysis path is deliberately narrow and auditable:
 
-The app is intentionally cautious. Its output is a structured discussion aid, not a legal conclusion.
+```text
+User text
+   |
+   v
+CaseInput
+   |
+   v
+FactExtractor
+   |
+   |  candidate evidence only
+   |  no legal conclusion here
+   v
+LegalOntologyStore  <--------- data/ontology/article5_reviewed.ttl
+   |
+   v
+LegalElementChecker
+   |
+   |  supported / missing / uncertain / contradicted /
+   |  exception_possible / not_applicable
+   v
+Article5Reasoner  <----------- validated AKN source index
+   |
+   v
+PreliminaryAnalysis
+   |
+   v
+ReportBuilder
+   |
+   +--> AnalysisResponse JSON
+   +--> browser result hierarchy
+   +--> graph nodes/edges
+   +--> case RDF preview
+   +--> optional LLM wording refinement
+```
 
-## Current Public Deployment
+## Academic Design Position
 
-The app is deployed at:
+The core design choice is that the law is not embedded in prompts or keyword rules.
+
+```text
+Not this:
+
+  input text -> LLM prompt -> legal answer
+
+But this:
+
+  input text -> deterministic evidence extraction
+             -> reviewed RDF legal model
+             -> validated AKN source anchors
+             -> structured preliminary output
+             -> optional wording refinement
+```
+
+This makes the project easier to defend:
+
+- **Traceability:** legal outputs are linked to Article 5 source anchors where available.
+- **Source separation:** AKN XML is source-law material; RDF/OWL is the reviewed model; JSON is output.
+- **Determinism:** the same input, source XML, and ontology produce the same backend result.
+- **Fail-closed behavior:** missing or invalid legal sources produce `analysis_unavailable`; there is no silent fallback.
+- **Current-law boundary:** Omnibus/proposed/amending material is marked separately and skipped by the active current-law reasoner.
+- **LLM containment:** LLM usage is optional and explanatory only.
+
+## Public Deployment
 
 ```text
 https://ai-act.democracyroutes.com
 ```
 
-The production service runs behind Nginx and HTTPS. The FastAPI app itself listens locally on the server and is proxied by Nginx.
-
-## Example Input
+The deployment uses Nginx and HTTPS in front of a local FastAPI service.
 
 ```text
-Municipality X wants to use an AI system to rank social housing applications.
-The model uses historical welfare data. A human officer can approve the final
-decision, but applicants will not see the score.
+Internet
+   |
+   v
+Nginx + TLS + rate limits + body limits
+   |
+   v
+127.0.0.1:8097
+   |
+   v
+uvicorn app.main:app
 ```
 
-Expected result:
-
-- the app attempts to run the ontology-first Article 5 pipeline
-- if the reviewed legal ontology is missing, the response explicitly says `Legal analysis unavailable`
-- the app does not fall back to JSON keyword rules
-
-Example Article 5 input:
+## Repository Layout
 
 ```text
-A public authority uses an AI system for social scoring based on social
-behaviour and personality characteristics. The score can cause detrimental
-treatment in access to services.
+app/
+  main.py                       FastAPI app, route wiring, runtime singletons
+  config.py                     Environment and path settings
+  models.py                     Pydantic request/response/domain models
+
+  analysis/
+    input_processor.py          Builds CaseInput from user text
+    report_builder.py           Converts PreliminaryAnalysis to API/UI output
+    llm_agent.py                Optional LLM wording refinement
+    prompt_templates.py         LLM prompt text
+
+  legal_source/
+    akn_parser.py               Parses Akoma Ntoso articles for article endpoints
+    akn_validator.py            Validates AI Act XML against local XSD files
+    legal_db.py                 In-memory article/definition store
+    source_index.py             Article 3 and Article 5 source-anchor index
+
+  ontology/
+    legal_ontology_store.py     Reviewed Article 5 RDF/OWL loader and validator
+    case_graph.py               Per-analysis RDF graph builder
+    ontology_builder.py         General ontology export builder
+    ontology_store.py           General ontology access/serialization
+    export.py                   Turtle/JSON-LD file export helper
+
+  reasoning/
+    fact_extractor.py           Deterministic candidate-fact extraction
+    legal_element_checker.py    Maps candidate facts to ontology elements
+    article5_reasoner.py        Ontology-first Article 5 reasoner
+
+  static/
+    favicon.svg
+    style.css
+    icons/rights/               Optimized UI icons used in result cards
+
+  templates/
+    index.html                  Browser UI and client-side graph rendering
+
+data/
+  ontology/
+    article5_reviewed.ttl       Reviewed Article 5 legal ontology
+  supporting/
+    seed_concepts.json          Non-legal support data for general ontology export
+    seed_annexes.json           Non-legal support data for general ontology export
+
+reference/
+  akoma-ntoso/
+    aiAct-2024-1689.xml         Source-law XML used by the app
+    akomantoso30.xml            Hackathon/reference AKN material
+    akomantoso30.xsd            AKN schema
+    xml.xsd                     XML namespace schema dependency
+  hackathon/
+    LegalDesign-LAST_JD-2026-hackathon.pdf
+
+examples/
+  sample-inputs/                Example text inputs for manual testing/demo
+
+generated/
+  ontology.ttl                  Generated general ontology export
+  ontology.jsonld               Generated general ontology export
+
+scripts/
+  parse_ai_act.py               Parser smoke-check script
+  build_ontology.py             Rebuilds generated ontology exports
+
+tests/
+  test_akn_parser.py
+  test_api.py
+  test_ontology_builder.py
+  test_ontology_first_architecture.py
 ```
 
-Expected behavior before the reviewed Article 5 ontology is added:
-
-- no legal conclusion is produced
-- `raw_rule_output.status` is `analysis_unavailable`
-- the response explains which source-law or ontology configuration is missing
-
-All signals still require human legal review.
-
-## Main Features
-
-### Browser Interface
-
-`GET /` serves the HTML interface in `app/templates/index.html`.
-
-The page lets a user:
-
-- paste a scenario or transcript
-- upload a `.txt` file
-- optionally request LLM refinement if configured
-- view ontology-derived legal elements, exceptions/conditions, source anchors, rights/interests, missing questions, traceability, visual maps, and raw JSON
-
-### Ontology-First Analysis Path
-
-`POST /api/analyze` now uses an ontology-first Article 5 pipeline. The active path is:
+Important distinction:
 
 ```text
-Akoma Ntoso AI Act XML
-  -> XSD validation
-  -> source anchors for Article 3 and Article 5
-  -> reviewed Article 5 RDF ontology
-  -> legal element checker
-  -> structured JSON output
+data/ontology/      = reviewed legal model used by Article5Reasoner
+data/supporting/    = support data for broad ontology export endpoints
+reference/          = external/legal/hackathon source materials
+generated/          = rebuildable export artifacts
+examples/           = demo inputs only
 ```
 
-There is no runtime switch back to the old JSON-rule path. `data/seed_prohibitions.json` remains in the repository only as historical material and is not used by `/api/analyze`.
+## Runtime Initialization
 
-If the source XML, XSD validation, source index, or reviewed legal ontology is missing or invalid, the API returns HTTP 200 with a valid `AnalysisResponse` whose `case_summary` is `Legal analysis unavailable`. This is intentional fail-closed behavior, not an application crash.
+`app/main.py` creates the runtime components once at import/startup:
 
-### Legal Source Layer
+```text
+settings
+   |
+   +--> LegalKnowledgeDB
+   |       loads AKN articles for /api/articles
+   |
+   +--> validate_akn_xml(...)
+   |       validates reference/akoma-ntoso/aiAct-2024-1689.xml
+   |
+   +--> LegalSourceIndex
+   |       available only if AKN validation succeeds
+   |
+   +--> LegalOntologyStore
+   |       loads and validates data/ontology/*.ttl
+   |
+   +--> Article5Reasoner
+   |       receives ontology store + source index + validation status
+   |
+   +--> ReportBuilder / CaseGraphBuilder / OptionalLLMAgent
+```
 
-The active source-law file is the hackathon-provided Akoma Ntoso XML:
+If AKN validation fails, the source index is not used. If the source index or legal ontology is unavailable, analysis fails closed.
+
+## Source-Law Layer
+
+The active source-law file is:
 
 ```text
 reference/akoma-ntoso/aiAct-2024-1689.xml
 ```
 
-It is validated against:
+The validator uses:
 
 ```text
 reference/akoma-ntoso/akomantoso30.xsd
 reference/akoma-ntoso/xml.xsd
 ```
 
-`app/legal_source/source_index.py` preserves source anchors for:
+`app/legal_source/source_index.py` indexes:
 
-- Article 3 definitions
-- Article 5
-- Article 5(1)(a)-(h)
-- nested Article 5(1)(c)(i)-(ii)
-- nested Article 5(1)(h)(i)-(iii)
+- Article 3 definitions;
+- Article 5 as a whole;
+- Article 5(1)(a)-(h);
+- nested Article 5(1)(c)(i)-(ii);
+- nested Article 5(1)(h)(i)-(iii);
+- Article 5(2)-(7) source anchors where available.
 
-The repository now uses `reference/akoma-ntoso/aiAct-2024-1689.xml` as the single AI Act Akoma Ntoso source file.
+Each source node can preserve:
 
-### Reviewed Legal Ontology
+- article number;
+- heading;
+- paragraph;
+- point;
+- `eId`;
+- text;
+- FRBR URI;
+- CELEX identifier.
 
-The reviewed Article 5 RDF ontology is stored as Turtle at:
+## Reviewed Legal Ontology
+
+The active reviewed ontology is:
 
 ```text
 data/ontology/article5_reviewed.ttl
 ```
 
-`app/ontology/legal_ontology_store.py` merges `.ttl` files from `data/ontology/` and validates the vocabulary expected by the reasoner. The ontology includes current AI Act Article 5 material and separately marked Omnibus/amending material. The active current-law reasoner skips Omnibus practices by default.
+`LegalOntologyStore` loads every `.ttl` file in `data/ontology/`, merges them into one `rdflib.Graph`, and validates that the supported vocabulary is present.
 
-### Ontology Layer
+It exposes query methods for:
 
-`app/ontology/ontology_builder.py` builds an RDF graph from:
+- prohibited practices;
+- required legal elements;
+- exceptions;
+- required exception/condition elements;
+- affected rights;
+- source anchors;
+- current-law vs proposed/amending material.
 
-- `data/seed_concepts.json`
-- `data/seed_annexes.json`
-- parsed AI Act article metadata
+The app currently supports the reviewed CIRSFID-style Article 5 vocabulary and a small `aid:` fixture vocabulary used by tests.
 
-The ontology models:
+## Reasoning Model
 
-- AI Act articles
-- actors
-- concepts
-- risks
-- rights/interests
-- obligations
-- scenarios
-- evidence snippets
-- missing questions
-- Annex III areas
-
-The active legal-analysis workflow is:
+The reasoner does not use an LLM and does not use a JSON rule fallback.
 
 ```text
-input text -> fact extraction -> reviewed Article 5 RDF ontology elements
-           -> source anchors from validated AKN -> structured JSON response
+Candidate facts:
+  extracted from input text by deterministic patterns
+
+Ontology elements:
+  loaded from reviewed RDF/OWL triples
+
+Element checker:
+  compares facts to ontology-required elements
+  returns structured LegalElementResult objects
+
+Article5Reasoner:
+  includes a candidate practice only when enough ontology-defined elements
+  are supported by evidence
 ```
 
-The graph can be exported as:
-
-- Turtle: `GET /api/ontology.ttl`
-- JSON-LD: `GET /api/ontology.jsonld`
-
-Generated copies are stored in:
+Element statuses are represented as strings:
 
 ```text
-generated/ontology.ttl
-generated/ontology.jsonld
+supported
+missing
+uncertain
+contradicted
+exception_possible
+not_applicable
 ```
 
-### Optional OpenRouter Refinement
+The first implementation is intentionally conservative. It provides element-level explainability and traceability, not a complete formal legal reasoner.
 
-`app/analysis/llm_agent.py` can call OpenRouter when `OPENROUTER_API_KEY` is configured.
+## Fail-Closed Behavior
 
-OpenRouter exposes an OpenAI-compatible API, so the app uses the Python `openai` SDK as the transport client while sending requests to:
+Expected configuration/source failures do not crash the app and do not return HTTP 500.
+
+If the AKN file, XSD validation, source index, or legal ontology is missing or invalid, `/api/analyze` returns HTTP 200 with a valid `AnalysisResponse`:
 
 ```text
-https://openrouter.ai/api/v1
+case_summary: "Legal analysis unavailable"
+matched_prohibited_practices: []
+missing_questions: configuration/source/model questions
+notes: includes "analysis_unavailable"
+disclaimer: says no legal assessment was performed
+raw_rule_output.status: "analysis_unavailable"
 ```
 
-When enabled, OpenRouter receives:
+This is intentional. It prevents the app from silently substituting a weaker legal source.
 
-- the user's input text
-- the deterministic rule output
-- selected legal source snippets
-- ontology concepts
+## Optional LLM Wording Refinement
 
-The model is instructed to stay within the provided sources and to preserve the non-legal-advice boundary. If no OpenRouter API key is configured, the app runs fully in deterministic mode.
+The deterministic ontology-first result is produced before any LLM step.
 
-The OpenRouter prompt is also scoped to Article 5. It is instructed not to invent prohibited-practice matches and not to add rights, trigger conditions, safeguards, contexts, targets, exceptions, or legal elements beyond the reviewed RDF/source-law material supplied by the backend.
+```text
+Deterministic PreliminaryAnalysis
+          |
+          +-- if use_llm=false --> ReportBuilder
+          |
+          +-- if use_llm=true and provider configured
+                    |
+                    v
+             LLM wording refinement
+                    |
+                    v
+             citizen_explanation only
+```
 
-For public deployments, OpenRouter refinement should be treated carefully because user text may contain personal, sensitive, or confidential information.
+The LLM receives:
 
-## API
+- the user text;
+- the deterministic preliminary output;
+- selected legal source snippets;
+- ontology-derived concepts.
+
+It is instructed not to invent:
+
+- prohibited-practice matches;
+- affected rights;
+- trigger conditions;
+- safeguards;
+- contexts;
+- targets;
+- exceptions;
+- legal elements.
+
+Environment variables currently use OpenRouter naming because the configured provider exposes an OpenAI-compatible endpoint:
+
+```text
+OPENROUTER_API_KEY=
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_MODEL=moonshotai/kimi-k2.6:free
+OPENROUTER_SITE_URL=https://ai-act.democracyroutes.com
+OPENROUTER_APP_TITLE=AI Act Prohibitions Checker
+```
+
+If no API key is configured, the app runs fully in deterministic mode.
+
+## Browser UI
+
+`GET /` serves `app/templates/index.html`.
+
+The UI supports:
+
+- direct text input;
+- `.txt` upload;
+- optional LLM wording refinement;
+- result cards for matched practices;
+- legal element status display;
+- exception/condition display;
+- affected-right icons;
+- source-anchor details;
+- traceability rows;
+- graph/ontology views;
+- raw JSON output.
+
+UI icons are loaded from:
+
+```text
+app/static/icons/rights/
+```
+
+The original large extracted icon sources were removed; only optimized runtime icons are kept.
+
+## API Reference
 
 ### `GET /`
 
@@ -207,9 +429,13 @@ Returns the browser interface.
 
 ### `POST /api/analyze`
 
-Analyzes JSON input.
+Analyzes a JSON scenario.
 
-The `text` field is limited to 20,000 characters.
+Input limits:
+
+- `text`: 1 to 20,000 characters;
+- `title`: maximum 160 characters;
+- `persona`: maximum 80 characters.
 
 Request:
 
@@ -222,33 +448,40 @@ Request:
 }
 ```
 
-Response:
+Response model: `AnalysisResponse`.
 
-Returns an `AnalysisResponse` with:
+Important fields:
 
-- `case_summary`
-- `matched_prohibited_practices`
-- `detected_actors`
-- `detected_contexts`
-- `detected_ai_functions`
-- `possible_risks`
-- `possible_rights_or_interests`
-- `obligations_to_verify`
-- `missing_questions`
-- `relevant_ai_act_sources`
-- `traceability`
-- `citizen_explanation`
-- `disclaimer`
-- `raw_rule_output`
-- `rdf_triples_preview`
-- `markdown_summary`
-- `graph`
+```text
+case_summary
+matched_prohibited_practices
+detected_actors
+detected_contexts
+detected_ai_functions
+possible_risks
+possible_rights_or_interests
+obligations_to_verify
+missing_questions
+relevant_ai_act_sources
+traceability
+notes
+citizen_explanation
+disclaimer
+raw_rule_output          historical field name retained for API compatibility
+rdf_triples_preview
+markdown_summary
+graph
+```
 
 ### `POST /api/upload`
 
 Analyzes an uploaded `.txt` file.
 
-Uploaded text is capped to the same analysis limit. The app reads at most 80,000 bytes and rejects larger uploads.
+Limits:
+
+- only `.txt`;
+- reads at most 80,001 bytes;
+- rejects content above the 20,000-character analysis limit.
 
 Query parameter:
 
@@ -258,101 +491,167 @@ use_llm=false
 
 ### `GET /api/articles`
 
-Returns parsed or seeded AI Act article metadata.
+Returns parsed AI Act article metadata.
 
 ### `GET /api/articles/{number}`
 
-Returns one article by number.
+Returns one parsed article.
 
 Example:
 
 ```text
-GET /api/articles/13
+GET /api/articles/5
 ```
 
 ### `GET /api/ontology.ttl`
 
-Returns the ontology as Turtle.
+Returns the broad/generated ontology as Turtle.
+
+This endpoint is useful for project-level concept export. It is not the active Article 5 legal source of truth.
 
 ### `GET /api/ontology.jsonld`
 
-Returns the ontology as JSON-LD.
+Returns the broad/generated ontology as JSON-LD.
+
+### `GET /api/legal-ontology.ttl`
+
+Returns the merged reviewed legal ontology from `LegalOntologyStore` as Turtle.
+
+### `GET /api/legal-ontology.jsonld`
+
+Returns the merged reviewed legal ontology as JSON-LD.
 
 ### `GET /api/health`
 
-Returns runtime health information:
+Returns runtime status, including:
 
-- app status
-- whether the AKN file loaded
-- number of parsed AI Act articles
-- parser warnings
-- RDF triple count
-- whether OpenRouter refinement is available
+- active analysis path;
+- analysis availability;
+- AKN XML path;
+- XSD paths;
+- AKN validation result;
+- source index status;
+- legal ontology directory;
+- legal ontology load/validation status;
+- Article count;
+- legal source warnings;
+- broad ontology triple count;
+- LLM availability;
+- `legacy_json_rule_path_removed`.
 
-## Project Structure
+## Data Flow In More Detail
 
 ```text
-app/
-  main.py                       FastAPI routes and app wiring
-  config.py                     Environment-based settings
-  models.py                     Pydantic request/response models
-  analysis/
-    input_processor.py          Text normalization, claims, keywords
-    rule_engine.py              Legacy/deprecated JSON-rule engine, not wired to /api/analyze
-    report_builder.py           Final response, markdown, graph data
-    llm_agent.py                Optional OpenRouter refinement
-    prompt_templates.py         LLM prompts
-  legal_source/
-    akn_parser.py               Akoma Ntoso XML parser
-    akn_validator.py            Local XSD validation for AKN source law
-    source_index.py             Article 3 / Article 5 source anchors
-    legal_db.py                 In-memory legal article store
-    article_selector.py         Legacy concept-to-article mapping
-  ontology/
-    legal_ontology_store.py     Reviewed legal ontology loader/validator
-    case_graph.py               Per-analysis RDF debug graph
-    ontology_builder.py         RDF graph construction
-    ontology_store.py           Ontology access and serialization
-    export.py                   File export helper
-  static/style.css              Browser UI styles
-  static/icons/rights/          Optimized right/interests icons used in results
-  templates/index.html          Browser UI and client-side visual maps
+                  +-------------------------+
+                  |  POST /api/analyze      |
+                  +-----------+-------------+
+                              |
+                              v
+                  +-------------------------+
+                  |  CaseInputRequest       |
+                  |  Pydantic limits        |
+                  +-----------+-------------+
+                              |
+                              v
+                  +-------------------------+
+                  |  build_case_input       |
+                  |  text normalization     |
+                  +-----------+-------------+
+                              |
+                              v
+                  +-------------------------+
+                  |  Article5Reasoner       |
+                  +-----------+-------------+
+                              |
+            +-----------------+------------------+
+            |                                    |
+            v                                    v
+ +----------------------+             +----------------------+
+ | FactExtractor        |             | LegalOntologyStore   |
+ | candidate facts      |             | RDF practices        |
+ | evidence snippets    |             | elements/exceptions  |
+ +----------+-----------+             +----------+-----------+
+            |                                    |
+            +-----------------+------------------+
+                              |
+                              v
+                  +-------------------------+
+                  | LegalElementChecker     |
+                  | supported/missing/etc.  |
+                  +-----------+-------------+
+                              |
+                              v
+                  +-------------------------+
+                  | Source anchors          |
+                  | from LegalSourceIndex   |
+                  +-----------+-------------+
+                              |
+                              v
+                  +-------------------------+
+                  | PreliminaryAnalysis     |
+                  +-----------+-------------+
+                              |
+                              v
+                  +-------------------------+
+                  | ReportBuilder           |
+                  +-----------+-------------+
+                              |
+              +---------------+----------------+
+              |                                |
+              v                                v
+   +----------------------+          +----------------------+
+   | AnalysisResponse     |          | Browser rendering    |
+   | JSON                 |          | cards/graphs/tables  |
+   +----------------------+          +----------------------+
+```
 
-  reasoning/
-    fact_extractor.py           Non-legal fact/evidence extraction
-    legal_element_checker.py    Legal element status objects
-    article5_reasoner.py        Ontology-first Article 5 reasoner
+## Case Graph Preview
 
-data/
-  ontology/                     Reviewed Article 5 RDF ontology files
-  seed_concepts.json            Seed actors, concepts, risks, rights, obligations
-  seed_annexes.json             Seed Annex III areas and questions
-  seed_prohibitions.json        Historical JSON mapping, not active legal source
-  sample_transcripts/           Example text inputs
+For each analysis, `CaseGraphBuilder` creates a temporary RDF graph separate from the static legal ontology.
 
-generated/
-  ontology.ttl                  Generated Turtle ontology
-  ontology.jsonld               Generated JSON-LD ontology
+```text
+scenario
+   |
+   +-- hasEvidence ------------> evidence snippet
+   |
+   +-- candidatePractice ------> prohibited practice
+                                      |
+                                      +-- elementSupport --> legal element
+                                      |
+                                      +-- sourceAnchor ----> AKN source anchor
+```
 
-reference/
-  akoma-ntoso/                  Hackathon-provided AKN XML and schemas
-  icons/                        Original extracted icon artwork for reference
+Only a short Turtle preview is returned in `rdf_triples_preview`.
 
-scripts/
-  parse_ai_act.py               Parser check script
-  build_ontology.py             Rebuild generated ontology files
+## General Ontology Export
 
-tests/
-  test_akn_parser.py
-  test_api.py
-  test_ontology_builder.py
-  test_rule_engine.py
-  test_ontology_first_architecture.py
+There are two RDF surfaces:
+
+```text
+Reviewed legal ontology:
+  data/ontology/*.ttl
+  /api/legal-ontology.ttl
+  /api/legal-ontology.jsonld
+  Used by Article5Reasoner
+
+General project ontology:
+  data/supporting/*.json
+  generated/ontology.ttl
+  generated/ontology.jsonld
+  /api/ontology.ttl
+  /api/ontology.jsonld
+  Used for broader concept/demo export
+```
+
+Rebuild generated exports:
+
+```bash
+python scripts/build_ontology.py
 ```
 
 ## Local Setup
 
-Create a virtual environment:
+Create and activate a virtual environment:
 
 ```bash
 python3 -m venv .venv
@@ -365,7 +664,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Start the app:
+Run the app:
 
 ```bash
 uvicorn app.main:app --reload
@@ -393,6 +692,7 @@ OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 OPENROUTER_MODEL=moonshotai/kimi-k2.6:free
 OPENROUTER_SITE_URL=https://ai-act.democracyroutes.com
 OPENROUTER_APP_TITLE=AI Act Prohibitions Checker
+
 AI_ACT_AKN_PATH=reference/akoma-ntoso/aiAct-2024-1689.xml
 AKOMANTOSO_XSD_PATH=reference/akoma-ntoso/akomantoso30.xsd
 XML_XSD_PATH=reference/akoma-ntoso/xml.xsd
@@ -400,86 +700,102 @@ AKOMANTOSO_REFERENCE_PATH=reference/akoma-ntoso/akomantoso30.xml
 LEGAL_ONTOLOGY_DIR=data/ontology
 ```
 
-If `OPENROUTER_API_KEY` is empty, OpenRouter refinement is unavailable. It is never used as a legal fallback.
+## Useful Commands
 
-## Legal Source Data
-
-The preferred legal source is the AI Act Akoma Ntoso XML file:
-
-```text
-reference/akoma-ntoso/aiAct-2024-1689.xml
-```
-
-The runtime default points to `reference/akoma-ntoso/aiAct-2024-1689.xml`.
-
-The original right/interests icon artwork is kept under `reference/icons/`. The UI uses smaller cleaned PNG copies in `app/static/icons/rights/` so result pages do not load the large reference images directly.
-
-To check parsing:
-
-```bash
-python scripts/parse_ai_act.py
-```
-
-To rebuild ontology exports:
-
-```bash
-python scripts/build_ontology.py
-```
-
-## Tests
-
-Run tests with the project root on `PYTHONPATH`:
+Validate tests:
 
 ```bash
 PYTHONPATH=. pytest
 ```
 
-The test suite covers parsing, ontology generation, Article 5 rule-engine behavior, API route functions, input limits, and the no-sufficient-signal path.
+Check AKN parsing:
 
-## Production Deployment Notes
+```bash
+python scripts/parse_ai_act.py
+```
 
-The current public deployment uses:
+Rebuild broad ontology exports:
 
-- systemd service: `ai-act-deliberation-explainer.service`
-- app bind address: `127.0.0.1:8097`
-- reverse proxy: Nginx
-- public domain: `https://ai-act.democracyroutes.com`
-- TLS: Let's Encrypt / Certbot
-- Nginx body limit: `256k`
-- Nginx API rate limit: `12r/m` per IP with small bursts for `/api/analyze` and `/api/upload`
-- security headers: CSP, HSTS, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, and `Permissions-Policy`
-- systemd hardening: restart limits, `NoNewPrivileges`, private temp/devices, read-only system/home protection, kernel/control-group protections, task limits, and memory cap
+```bash
+python scripts/build_ontology.py
+```
 
-Recommended hardening before relying on this as a public service:
+Run one local API request:
 
-- keep dependency versions pinned
-- keep app-level input length limits enabled
-- keep Nginx or application rate limiting enabled
-- move the deployment out of `/root` and run the service under a dedicated non-root user
-- keep systemd sandboxing options enabled
-- keep CSP, HSTS, and Permissions-Policy headers enabled
-- keep OpenRouter refinement disabled unless privacy and data-sharing notices are in place
+```bash
+curl -sS http://127.0.0.1:8000/api/health
+```
+
+## Testing Coverage
+
+The test suite covers:
+
+- AKN parser behavior;
+- source-law validation/index behavior;
+- Article 5 source-anchor extraction;
+- reviewed ontology loading/validation;
+- fail-closed analysis when ontology/source configuration is unavailable;
+- no dependency on the removed legacy JSON rule path;
+- API health and analyze behavior;
+- input length validation;
+- broad ontology export generation.
+
+Current expected suite size:
+
+```text
+21 tests
+```
+
+## Production Notes
+
+The current deployment uses:
+
+- systemd service: `ai-act-deliberation-explainer.service`;
+- app bind address: `127.0.0.1:8097`;
+- reverse proxy: Nginx;
+- public domain: `https://ai-act.democracyroutes.com`;
+- TLS: Let's Encrypt / Certbot;
+- Nginx body limit: `256k`;
+- Nginx API rate limit for analysis/upload routes;
+- security headers including CSP, HSTS, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, and `Permissions-Policy`;
+- systemd hardening including `NoNewPrivileges`, private temp/devices, read-only system/home protection, task limits, and memory cap.
+
+Recommended next hardening:
+
+- run the service under a dedicated non-root user;
+- keep dependency versions pinned and reviewed;
+- keep app-level input limits;
+- keep rate limiting;
+- keep LLM refinement disabled unless privacy notices and data-sharing boundaries are acceptable;
+- monitor errors and request volume.
 
 ## Known Limitations
 
-- The rule engine is keyword-based and can miss relevant Article 5 issues or over-detect weak signals.
-- The deterministic legal-source selection is intentionally limited to Article 5.
-- The app does not perform a complete AI Act classification.
-- The app does not decide whether a use case is high-risk, prohibited, compliant, or unlawful.
-- The ontology is intentionally small and should be expanded for deeper legal reasoning.
+- The app checks Article 5 prohibited-practice signals only.
+- It does not perform a full AI Act classification.
+- It does not decide whether a system is lawful, unlawful, compliant, or non-compliant.
+- The current element checker is deterministic and intentionally simple; it is not a complete formal logic reasoner.
+- The reviewed ontology contains Omnibus/proposed/amending material, but active analysis skips it unless explicitly changed in code.
+- Some source anchors may not expose every nested `eId` depending on AKN structure.
 - Uploaded text is processed in memory and is not persisted by the application.
-- Public deployments still need monitoring in addition to rate limiting and input-size controls.
+- Optional LLM wording refinement may send user text to the configured provider if enabled.
 
 ## Design Boundary
 
-The application is an explainer and mapping tool. It should help people understand possible AI Act relevance by linking text, concepts, legal sources, visual maps, and machine-readable output.
+This project should be presented as:
+
+- an ontology-assisted legal-design explainer;
+- a traceability demonstrator;
+- an Article 5 source/ontology/API prototype;
+- a human-review support tool.
 
 It should not be presented as:
 
-- a legal advice system
-- a compliance certification tool
-- a substitute for expert legal review
-- a complete AI Act risk-classification engine
+- legal advice;
+- a compliance certificate;
+- a complete AI Act classifier;
+- an autonomous legal decision-maker;
+- an LLM legal oracle.
 
 ## License
 

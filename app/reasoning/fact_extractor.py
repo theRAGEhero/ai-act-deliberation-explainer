@@ -20,7 +20,7 @@ class FactExtractor:
         "ai_system": r"\b(ai system|artificial intelligence|algorithm|automated|machine learning|model)\b",
         "biometric": r"\b(biometric|facial recognition|face recognition|remote identification)\b",
         "social_scoring_text": r"\b(social score|social scoring|social behaviour|social behavior|classif(?:y|ies|ication)|evaluat(?:e|es|ion))\b",
-        "emotion_recognition_text": r"\b(emotion recognition|infer emotions|detect emotions)\b",
+        "emotion_recognition_text": r"\b(emotion recognition|infer(?:s|ring)? (?:my |their |a person's |people's )?emotions?|detect(?:s|ing)? (?:my |their |a person's |people's )?emotions?)\b",
         "manipulation_text": r"\b(subliminal|manipulative|deceptive|distort behaviour|distort behavior|informed decision|harm)\b",
         "vulnerability_text": r"\b(vulnerab(?:le|ility)|age|disability|socio-economic|social or economic|exploit)\b",
         "profiling_text": r"\b(profiling|personality traits|criminal risk|risk assessment)\b",
@@ -28,8 +28,13 @@ class FactExtractor:
         "biometric_categorisation_text": r"\b(biometric categorisation|biometric categorization|infer race|political opinions|religious beliefs|sexual orientation)\b",
         "real_time_remote_biometric_text": r"\b(real-time remote biometric|remote biometric identification|publicly accessible space|live facial recognition)\b",
         "law_enforcement_context": r"\b(police|law enforcement|criminal offence|criminal offense)\b",
+        "strict_necessity_text": r"\b(strictly necessary|strict necessity)\b",
+        "temporal_limitation_text": r"\b(limited by time|time limit|temporal limitation)\b",
+        "geographic_limitation_text": r"\b(limited by geography|geographic limitation|geographical limitation)\b",
+        "personal_limitation_text": r"\b(limited by persons|personal limitation)\b",
+        "authorisation_text": r"\b(judicial authority authorises|judicial authority authorizes|prior authorisation|prior authorization|national law authorisation|national law authorization)\b",
         "workplace_context": r"\b(workplace|employee|worker|job|employment)\b",
-        "education_context": r"\b(school|student|education|university)\b",
+        "education_context": r"\b(school|student|studying|study at|education|university|professor|teacher|classroom|course|unibo)\b",
     }
 
     def extract(self, text: str) -> list[CandidateFact]:

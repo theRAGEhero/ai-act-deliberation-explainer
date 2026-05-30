@@ -47,7 +47,7 @@ class Article5Reasoner:
             element_results = self.element_checker.check(facts, elements)
             supported = [item for item in element_results if item.status == "supported"]
             supported_system = [item for item in supported if "__usesSystem__" in item.id]
-            if not supported_system:
+            if not supported_system or len(supported) < 2:
                 continue
             anchors = self._source_anchors(practice["id"])
             match = ProhibitedPracticeMatch(
@@ -232,4 +232,6 @@ class Article5Reasoner:
             for element in match.legal_elements:
                 if element.missing_question:
                     questions.append(element.missing_question)
-        return questions or ["No reviewed Article 5 ontology element was supported by the extracted facts."]
+        if questions or matches:
+            return questions
+        return ["No reviewed Article 5 ontology element was supported by the extracted facts."]
