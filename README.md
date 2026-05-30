@@ -106,7 +106,7 @@ This makes the project easier to defend:
 - **Source separation:** AKN XML is source-law material; RDF/OWL is the reviewed model; JSON is output.
 - **Determinism:** the same input, source XML, and ontology produce the same backend result.
 - **Fail-closed behavior:** missing or invalid legal sources produce `analysis_unavailable`; there is no silent fallback.
-- **Current-law boundary:** Omnibus/proposed/amending material is marked separately and skipped by the active current-law reasoner.
+- **Amended Article 5 boundary:** amended Article 5 material is grouped separately for clarity and integrated in this prototype.
 - **LLM containment:** LLM usage is optional, provenance-labelled, and limited to candidate fact suggestions plus wording.
 
 ## Deterministic Workflow Boundary
@@ -394,7 +394,7 @@ It exposes query methods for:
 - required exception/condition elements;
 - affected rights;
 - source anchors;
-- current-law vs proposed/amending material.
+- original vs amended Article 5 material.
 
 The app currently supports the reviewed CIRSFID-style Article 5 vocabulary and a small `aid:` fixture vocabulary used by tests.
 
@@ -916,7 +916,7 @@ Recommended next hardening:
 - It does not perform a full AI Act classification.
 - It does not decide whether a system is lawful, unlawful, compliant, or non-compliant.
 - The current element checker is deterministic and intentionally simple; it is not a complete formal logic reasoner.
-- The reviewed ontology contains Omnibus/proposed/amending material, but active analysis skips it unless explicitly changed in code.
+- The reviewed ontology contains amended Article 5 material that is integrated in this prototype and grouped separately in the explorer.
 - Some source anchors may not expose every nested `eId` depending on AKN structure.
 - Uploaded text is processed in memory and is not persisted by the application.
 - Optional LLM candidate-fact assistance and wording refinement may send user text to the configured provider if enabled.

@@ -156,6 +156,28 @@ class LegalOntologyStore:
             return []
         return [self._resource(obj) for obj in self.graph.objects(subject, CIRSFID_AI.requiresCondition) if isinstance(obj, URIRef)]
 
+    def get_derogations(self, practice_id: str) -> list[dict[str, Any]]:
+        subject = self._resolve_resource(practice_id)
+        if not subject:
+            return []
+        conditions = [obj for obj in self.graph.objects(subject, CIRSFID_AI.requiresCondition) if isinstance(obj, URIRef)]
+        derogations: list[dict[str, Any]] = []
+        seen: set[URIRef] = set()
+        for condition in conditions:
+            for derogation in self.graph.subjects(CIRSFID_AI.derogatesFrom, condition):
+                if not isinstance(derogation, URIRef) or derogation in seen:
+                    continue
+                seen.add(derogation)
+                item = self._resource(derogation)
+                item["derogates_from"] = self._resource(condition)
+                item["required_conditions"] = [
+                    self._resource(obj)
+                    for obj in self.graph.objects(derogation, CIRSFID_AI.requiresCondition)
+                    if isinstance(obj, URIRef)
+                ]
+                derogations.append(item)
+        return derogations
+
     def is_current_law_practice(self, practice_id: str) -> bool:
         anchors = self.get_source_anchors(practice_id)
         return bool(anchors) and all(anchor.get("legal_status") == "current_binding_law" for anchor in anchors)
@@ -189,7 +211,7 @@ class LegalOntologyStore:
             "requirement_type": self._literal(subject, AID.requirementType) or "required",
             "source_anchor": self._literal(subject, AID.sourceAnchor) or self._literal(subject, CIRSFID_AI.sourceAnchor),
             "is_omnibus": self._is_omnibus_source(subject),
-            "legal_status": "proposed_or_amending_material" if self._is_omnibus_source(subject) else "current_binding_law",
+            "legal_status": "amended_article5" if self._is_omnibus_source(subject) else "current_binding_law",
             "current_binding_law": self._current_binding_law(subject),
         }
 
@@ -216,7 +238,7 @@ class LegalOntologyStore:
     def _warn_if_omnibus_present(self) -> None:
         omnibus = [str(source) for source in self.graph.subjects(CIRSFID_AI.insertedBy, CIRSFID_AKN.OmnibusAIAct)]
         if omnibus:
-            self.status.warnings.append("Ontology contains Omnibus/proposed amendment material; current-law analysis must distinguish it from Regulation (EU) 2024/1689.")
+            self.status.warnings.append("Ontology contains amended Article 5 material integrated for this prototype.")
 
     def _is_prohibited_practice(self, subject: URIRef) -> bool:
         return (subject, RDF.type, AID.ProhibitedPractice) in self.graph or (subject, RDFS.subClassOf, CIRSFID_PROH.ProhibitedPractice) in self.graph
@@ -270,6 +292,9 @@ class LegalOntologyStore:
     def _is_omnibus_source(self, subject: URIRef) -> bool:
         if subject == CIRSFID_AKN.OmnibusAIAct or (subject, CIRSFID_AI.insertedBy, CIRSFID_AKN.OmnibusAIAct) in self.graph:
             return True
+        for source in self.graph.objects(subject, CIRSFID_AI.legalSource):
+            if source == CIRSFID_AKN.OmnibusAIAct or (source, CIRSFID_AI.insertedBy, CIRSFID_AKN.OmnibusAIAct) in self.graph:
+                return True
         return any(source == CIRSFID_AKN.OmnibusAIAct for source in self.graph.objects(subject, CIRSFID_AI.insertedBy))
 
     def _current_binding_law(self, subject: URIRef) -> bool:

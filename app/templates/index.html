@@ -27,16 +27,32 @@
       <span>Element status</span>
       <span>Traceable JSON</span>
     </section>
-    <section class="card input-card">
-      <div class="section-label">Scenario input</div>
-      <label for="text">Meeting transcript, discussion notes, or AI-use scenario</label>
-      <textarea id="text" rows="9">A public authority wants to use an AI system to assign social scores to citizens over time based on social behaviour and predicted personality characteristics. The score may lead to detrimental treatment when people apply for public services.</textarea>
-      <div class="actions">
-        <input id="file" type="file" accept=".txt">
-        <label><input id="useLlm" type="checkbox"> use LLM for context suggestions and wording</label>
-        <button id="analyze">Analyze</button>
+    <section class="home-layout">
+      <div class="card input-card">
+        <div class="section-label">Scenario input</div>
+        <label for="text">Meeting transcript, discussion notes, or AI-use scenario</label>
+        <textarea id="text" rows="9">A public authority wants to use an AI system to assign social scores to citizens over time based on social behaviour and predicted personality characteristics. The score may lead to detrimental treatment when people apply for public services.</textarea>
+        <div class="actions">
+          <input id="file" type="file" accept=".txt">
+          <label><input id="useLlm" type="checkbox"> use LLM for context suggestions and wording</label>
+          <button id="analyze">Analyze</button>
+        </div>
+        <div id="status"></div>
       </div>
-      <div id="status"></div>
+      <aside class="article5-nav card">
+        <div class="section-label">Article 5 prohibitions</div>
+        <div id="article5SideNav"></div>
+        <a class="text-link" href="#/prohibitions">View all -></a>
+      </aside>
+    </section>
+    <section id="explorerShell" class="explorer-shell" hidden>
+      <nav class="explorer-tabs" aria-label="Explorer navigation">
+        <a href="#/" data-route="home">Home / Scenario Checker</a>
+        <a href="#/prohibitions" data-route="prohibitions">Article 5 Prohibitions Explorer</a>
+        <a href="#/rights" data-route="rights">Rights Catalogue</a>
+        <a href="#/rdf" data-route="rdf">RDF / OWL Explorer</a>
+      </nav>
+      <div id="explorerView"></div>
     </section>
     <section id="output" hidden>
       <div class="card abstract-card">
@@ -110,6 +126,7 @@
     const $ = (id) => document.getElementById(id);
     let currentData = null;
     let selectedPracticeId = null;
+    let explorerData = null;
     const list = (id, values) => {
       $(id).innerHTML = "";
       if (!values || !values.length) {
@@ -155,6 +172,23 @@
       element: { fill: "#ecfeff", stroke: "#0891b2", text: "#164e63", label: "Legal elements" },
       exception: { fill: "#fff7ed", stroke: "#ea580c", text: "#7c2d12", label: "Exceptions" },
       article: { fill: "#ede9fe", stroke: "#7c3aed", text: "#3b0764", label: "Sources" }
+    };
+
+    const practiceOrder = {
+      HarmfulSubliminalInfluence: "1A",
+      HarmfulDeceptiveManipulation: "1B",
+      ExploitationOfAgeDisabilityOrSocioEconomicVulnerability: "2",
+      DetrimentalSocialScoring: "3",
+      CriminalRiskPredictionBasedSolelyOnProfiling: "4",
+      UntargetedFacialImageScraping: "5",
+      EmotionRecognitionInWorkplace: "6A",
+      EmotionRecognitionInEducation: "6B",
+      SensitiveBiometricCategorisation: "7",
+      RealTimeRemoteBiometricIdentificationInPublicSpacesForLawEnforcement: "8",
+      IntendedScalableNonConsensualIntimateDeepfakeGenerator: "9A",
+      IntendedScalableNonConsensualIntimateDeepfakeManipulator: "9B",
+      IntendedScalableChildPornographySexualAbuseMaterialGenerator: "10A",
+      IntendedScalableChildPornographyManipulator: "10B"
     };
 
     function escapeHtml(value) {
@@ -219,6 +253,191 @@
       return file ? `/static/icons/rights/${file}` : "";
     }
 
+    function practiceNumber(practice) {
+      return practiceOrder[practice?.id] || "";
+    }
+
+    function statusLabel(value) {
+      return String(value || "current_binding_law").replace("amended_article5", "amended Article 5").replace("mixed_current_and_amended_article5", "current + amended Article 5").replaceAll("_", " ");
+    }
+
+    async function loadExplorerData() {
+      if (explorerData) return explorerData;
+      const response = await fetch("/api/article5/explorer");
+      explorerData = response.ok ? await response.json() : { practices: [], rights: [] };
+      renderArticle5SideNav();
+      return explorerData;
+    }
+
+    function groupedPractices() {
+      const practices = (explorerData?.practices || []).slice().sort((a, b) => (practiceNumber(a) || a.label).localeCompare(practiceNumber(b) || b.label, undefined, { numeric: true }));
+      return {
+        original: practices.filter((practice) => practice.group !== "amended"),
+        amended: practices.filter((practice) => practice.group === "amended")
+      };
+    }
+
+    function renderArticle5SideNav() {
+      const target = $("article5SideNav");
+      if (!target || !explorerData) return;
+      const groups = groupedPractices();
+      const groupHtml = (title, practices) => `
+        <section>
+          <h3>${escapeHtml(title)}</h3>
+          ${practices.map((practice) => `<a href="#/prohibitions/${encodeURIComponent(practice.id)}"><strong>${escapeHtml(practiceNumber(practice))}</strong> ${escapeHtml(practice.label)}</a>`).join("")}
+        </section>
+      `;
+      target.innerHTML = groupHtml("Original Article 5", groups.original) + groupHtml("Amended Article 5", groups.amended);
+    }
+
+    function routeParts() {
+      return (location.hash || "#/").replace(/^#\/?/, "").split("/").filter(Boolean);
+    }
+
+    async function renderRoute() {
+      await loadExplorerData();
+      const parts = routeParts();
+      document.querySelectorAll(".explorer-tabs a").forEach((link) => {
+        const route = link.dataset.route;
+        link.classList.toggle("active", (route === "home" && !parts.length) || route === parts[0]);
+      });
+      $("explorerShell").hidden = !parts.length && !explorerData;
+      if (!parts.length) {
+        $("explorerShell").hidden = true;
+        return;
+      }
+      $("explorerShell").hidden = false;
+      if (parts[0] === "prohibitions" && parts[1]) return renderProhibitionDetail(decodeURIComponent(parts[1]));
+      if (parts[0] === "prohibitions") return renderProhibitionsExplorer();
+      if (parts[0] === "rights" && parts[1]) return renderRightDetail(decodeURIComponent(parts[1]));
+      if (parts[0] === "rights") return renderRightsCatalogue();
+      if (parts[0] === "rdf") return renderRdfExplorer(parts[1] ? decodeURIComponent(parts[1]) : null);
+      $("explorerView").innerHTML = "";
+    }
+
+    function practiceCard(practice) {
+      const exceptions = practice.exceptions || [];
+      const conditions = practice.conditions || [];
+      return `
+        <article class="explorer-card">
+          <h3><span>${escapeHtml(practiceNumber(practice))}</span>${escapeHtml(practice.label)}</h3>
+          <p>${escapeHtml(practice.article_ref || "Article 5")}</p>
+          <div class="chip-list">
+            ${(practice.elements || []).slice(0, 4).map((item) => chip(item.label, "muted")).join("")}
+          </div>
+          ${exceptions.length ? `<div class="mini-block"><strong>Exceptions</strong>${exceptions.map((item) => chip(item.label, "obligation")).join("")}</div>` : ""}
+          ${conditions.length ? `<div class="mini-block"><strong>Conditions</strong>${conditions.map((item) => chip(item.label.replace("requires Condition: ", ""), "obligation")).join("")}</div>` : ""}
+          <div class="chip-list">${(practice.rights || []).map((right) => rightChip(right.label)).join("")}</div>
+          <a class="text-link" href="#/prohibitions/${encodeURIComponent(practice.id)}">Open</a>
+        </article>
+      `;
+    }
+
+    function renderProhibitionsExplorer() {
+      const groups = groupedPractices();
+      $("explorerView").innerHTML = `
+        <section class="card explorer-page">
+          <div class="section-label">Article 5 Prohibited Practices Explorer</div>
+          <h2>AKN source law + RDF/OWL ontology + rights and exceptions</h2>
+          <h3>Original Article 5 Prohibitions</h3>
+          <div class="explorer-grid">${groups.original.map(practiceCard).join("")}</div>
+          <h3>Amended Article 5 Prohibitions</h3>
+          <p class="viz-note">These provisions are treated as integrated Article 5 prohibitions in this prototype.</p>
+          <div class="explorer-grid">${groups.amended.map(practiceCard).join("")}</div>
+        </section>
+      `;
+    }
+
+    function renderProhibitionDetail(id) {
+      const practice = (explorerData?.practices || []).find((item) => item.id === id);
+      if (!practice) {
+        $("explorerView").innerHTML = `<section class="card"><div class="empty-state">Select a prohibition from the explorer.</div></section>`;
+        return;
+      }
+      const exceptions = practice.exceptions || [];
+      const conditions = practice.conditions || [];
+      const derogations = practice.derogations || [];
+      $("explorerView").innerHTML = `
+        <section class="card detail-page">
+          <a class="text-link" href="#/prohibitions">&lt; Back to Article 5 Explorer</a>
+          <div class="section-label">${escapeHtml(practice.article_ref || "Article 5")}</div>
+          <h2>${escapeHtml(practiceNumber(practice))} ${escapeHtml(practice.label)}</h2>
+          <div class="detail-grid">
+            <div><strong>RDF id</strong><span>${escapeHtml(practice.id)}</span></div>
+            <div><strong>Legal source</strong><span>${escapeHtml(practice.article_ref || "Article 5")}</span></div>
+            <div><strong>System / elements</strong><span>${escapeHtml((practice.elements || []).map((item) => item.label).join("; "))}</span></div>
+          </div>
+          ${exceptions.length ? `<section class="detail-block"><h3>Exceptions attached to this prohibition</h3><div class="chip-list">${exceptions.map((item) => chip(item.label, "obligation")).join("")}</div></section>` : ""}
+          ${conditions.length ? `<section class="detail-block"><h3>Conditions attached to this prohibition</h3><div class="chip-list">${conditions.map((item) => chip(item.label.replace("requires Condition: ", ""), "obligation")).join("")}</div></section>` : ""}
+          ${derogations.length ? `<section class="detail-block"><h3>Derogation attached to this prohibition</h3>${derogations.map((item) => `
+            <div class="mini-block">
+              <strong>${escapeHtml(item.label)}</strong>
+              ${item.derogates_from ? `<span>Derogates from: ${escapeHtml(item.derogates_from.label)}</span>` : ""}
+              ${(item.required_conditions || []).length ? `<div class="chip-list">${item.required_conditions.map((condition) => chip(condition.label, "obligation")).join("")}</div>` : ""}
+            </div>
+          `).join("")}</section>` : ""}
+          <section class="detail-block"><h3>Rights affected</h3><div class="chip-list">${(practice.rights || []).map((right) => rightChip(right.label)).join("")}</div></section>
+          <section class="detail-block"><h3>RDF triples</h3>${rdfTable(practice)}</section>
+        </section>
+      `;
+    }
+
+    function renderRightsCatalogue() {
+      $("explorerView").innerHTML = `
+        <section class="card explorer-page">
+          <div class="section-label">Citizens' rights protected by Article 5</div>
+          <div class="rights-grid">
+            ${(explorerData?.rights || []).map((right) => `
+              <a class="right-card" href="#/rights/${encodeURIComponent(right.id)}">
+                ${rightIconPath(right.label) ? `<img src="${rightIconPath(right.label)}" alt="" aria-hidden="true">` : ""}
+                <strong>${escapeHtml(right.label)}</strong>
+                <span>Linked: ${escapeHtml(right.linked_practices.map((practice) => practice.label).join(", "))}</span>
+              </a>
+            `).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderRightDetail(id) {
+      const right = (explorerData?.rights || []).find((item) => item.id === id);
+      if (!right) return renderRightsCatalogue();
+      $("explorerView").innerHTML = `
+        <section class="card detail-page">
+          <a class="text-link" href="#/rights">&lt; Back to rights</a>
+          <h2>${escapeHtml(right.label)}</h2>
+          <div class="explorer-grid">
+            ${right.linked_practices.map((practice) => {
+              const full = (explorerData?.practices || []).find((item) => item.id === practice.id);
+              return `<article class="explorer-card"><h3>${escapeHtml(full ? `${practiceNumber(full)} ${full.label}` : practice.label)}</h3><p>${escapeHtml(full?.article_ref || "Article 5")}</p><a class="text-link" href="#/prohibitions/${encodeURIComponent(practice.id)}">Open prohibition</a></article>`;
+            }).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderRdfExplorer(selectedId) {
+      const practices = explorerData?.practices || [];
+      const practice = practices.find((item) => item.id === selectedId) || practices[0];
+      $("explorerView").innerHTML = `
+        <section class="card detail-page">
+          <div class="section-label">RDF / OWL Prohibition Explorer</div>
+          <label for="rdfSelect">Select prohibition</label>
+          <select id="rdfSelect">
+            ${practices.map((item) => `<option value="${escapeHtml(item.id)}" ${item.id === practice.id ? "selected" : ""}>${escapeHtml(practiceNumber(item))} ${escapeHtml(item.label)}</option>`).join("")}
+          </select>
+          <h2>${escapeHtml(practice.label)}</h2>
+          ${rdfTable(practice)}
+          <div class="actions"><a class="text-link" href="#/prohibitions/${encodeURIComponent(practice.id)}">Show rights</a><a class="text-link" href="#/prohibitions/${encodeURIComponent(practice.id)}">Show attached exceptions</a></div>
+        </section>
+      `;
+      $("rdfSelect").onchange = (event) => { location.hash = `#/rdf/${encodeURIComponent(event.target.value)}`; };
+    }
+
+    function rdfTable(practice) {
+      return `<table class="rdf-table"><thead><tr><th>RDF relation</th><th>Object</th></tr></thead><tbody>${(practice.rdf_triples || []).map((triple) => `<tr><td>${escapeHtml(triple.predicate)}</td><td>${escapeHtml(triple.object)}</td></tr>`).join("")}</tbody></table>`;
+    }
+
     function rightChip(label) {
       const icon = rightIconPath(label);
       const img = icon ? `<img class="right-chip-icon" src="${icon}" alt="" aria-hidden="true">` : "";
@@ -257,7 +476,7 @@
             ${exceptions.map((exception) => `
               <div class="exception-row">
                 <div><span>${escapeHtml(exception.label)}</span>${statusChip(exception.status)}</div>
-                <div class="chip-list">${(exception.required_conditions || []).map((condition) => `${chip(condition.label, "obligation")} ${statusChip(condition.status)}`).join("") || chip("no linked condition rows", "muted")}</div>
+                <div class="chip-list">${(exception.required_conditions || []).map((condition) => `${chip(condition.label, "obligation")} ${statusChip(condition.status)}`).join("")}</div>
               </div>
             `).join("")}
           </div>
@@ -477,7 +696,7 @@
               <button type="button" class="practice-button ${match.id === selectedPracticeId ? "active" : ""}" data-practice-id="${escapeHtml(match.id)}">
                 <span>${index + 1}</span>
                 <strong>${escapeHtml(match.label)}</strong>
-                <small>${escapeHtml(match.article_point)} · ${escapeHtml(String(match.legal_basis_status || "current_binding_law").replaceAll("_", " "))}</small>
+                <small>${escapeHtml(match.article_point)} · ${escapeHtml(statusLabel(match.legal_basis_status))}</small>
               </button>
             `).join("")}
           </nav>
@@ -500,10 +719,10 @@
           <p>Evidence: ${(match.evidence || []).slice(0, 2).map((item) => chip(item, "risk")).join("") || chip("to verify", "muted")}</p>
         </div>
         <div class="prohibition-grid">
-          <div><strong>Affected rights</strong>${(match.affected_rights || []).map((item) => rightChip(item)).join("") || chip("none defined", "muted")}</div>
-          <div><strong>Source anchors</strong>${(match.source_anchors || []).map((anchor) => chip(anchor.label, anchor.legal_status === "current_binding_law" ? "right" : "obligation")).join("") || chip("none defined", "muted")}</div>
+          <div><strong>Affected rights</strong>${(match.affected_rights || []).map((item) => rightChip(item)).join("")}</div>
+          <div><strong>Source anchors</strong>${(match.source_anchors || []).map((anchor) => chip(anchor.label, anchor.legal_status === "current_binding_law" ? "right" : "obligation")).join("")}</div>
           <div><strong>Legal elements</strong>${chip(`${(match.legal_elements || []).filter((item) => item.status === "supported").length} supported`, "right")}${chip(`${(match.legal_elements || []).filter((item) => item.status === "missing").length} missing`, "obligation")}</div>
-          <div><strong>Exceptions</strong>${(match.exception_results || []).map((item) => chip(item.label, "obligation")).join("") || chip("none defined", "muted")}</div>
+          ${(match.exception_results || []).length ? `<div><strong>Exceptions</strong>${(match.exception_results || []).map((item) => chip(item.label, "obligation")).join("")}</div>` : ""}
         </div>
         <div class="ontology-details">
           ${renderLegalElements(match.legal_elements)}
@@ -542,17 +761,16 @@
             <h3>Selected Practice</h3>
             <div class="chip-list">${chip(match.article_point, "right")}${statusChip(match.legal_basis_status || "current_binding_law")}</div>
             <h3>Affected Rights</h3>
-            <div class="chip-list">${(match.affected_rights || []).map((right) => rightChip(right)).join("") || chip("none defined", "muted")}</div>
+            <div class="chip-list">${(match.affected_rights || []).map((right) => rightChip(right)).join("")}</div>
             <h3>AKN Anchors</h3>
-            <div class="chip-list">${(match.source_anchors || []).map((anchor) => chip(anchor.eId || anchor.label, "muted")).join("") || chip("none defined", "muted")}</div>
+            <div class="chip-list">${(match.source_anchors || []).map((anchor) => chip(anchor.eId || anchor.label, "muted")).join("")}</div>
           </aside>
         </div>
       `);
     }
 
     async function renderOntologyMap(data) {
-      const current = matches(data).filter((match) => match.legal_basis_status === "current_binding_law");
-      const omitted = (data.notes || []).find((note) => /Skipped \d+ Omnibus/i.test(note));
+      const practices = matches(data);
       let ontologyStatus = "";
       try {
         const response = await fetch("/api/health");
@@ -571,26 +789,24 @@
         ontologyStatus = `<div class="empty-state">Ontology health status could not be loaded.</div>`;
       }
       setPanel("ontologyMap", `
-        <div class="viz-note">Static RDF/legal-model view. Current case results remain separate from proposed or amending material.</div>
+        <div class="viz-note">Static RDF/legal-model view. Amended Article 5 prohibitions are integrated in this prototype.</div>
         ${ontologyStatus}
         <div class="ontology-map-layout">
           <section>
-            <h3>Current-Law Candidate Practices In This Case</h3>
+            <h3>Candidate Practices In This Case</h3>
             <div class="ontology-list">
-              ${current.map((match) => `
+              ${practices.map((match) => `
                 <button type="button" class="ontology-practice-row ${match.id === selectedPracticeId ? "active" : ""}" data-practice-id="${escapeHtml(match.id)}">
                   <strong>${escapeHtml(match.label)}</strong>
                   <span>${escapeHtml(match.article_point)} · ${(match.legal_elements || []).length} legal element(s) · ${(match.source_anchors || []).length} source anchor(s)</span>
                 </button>
-              `).join("") || `<div class="empty-state">No current-law RDF practice matched this case.</div>`}
+              `).join("") || `<div class="empty-state">No RDF practice matched this case.</div>`}
             </div>
           </section>
           <section>
-            <h3>Proposed / Amending Material</h3>
-            <details class="omnibus-box">
-              <summary>Separated from current-law analysis</summary>
-              <p>${escapeHtml(omitted || "No proposed or amending practice was reported by this analysis.")}</p>
-            </details>
+            <h3>Explorer</h3>
+            <p class="viz-note">Open the Article 5 Prohibitions Explorer to inspect original and amended Article 5 RDF resources.</p>
+            <a class="text-link" href="#/prohibitions">Open explorer</a>
           </section>
         </div>
       `);
@@ -622,7 +838,7 @@
 
     function renderSourceMap(data) {
       const anchors = sourceAnchors(data).slice(0, 10);
-      const sourceNodes = anchors.map((s) => `<div class="source-node"><strong>${escapeHtml(s.label)}</strong><span>${escapeHtml(s.eId || "eId unavailable")}</span><span>${escapeHtml(String(s.legal_status || "current_binding_law").replaceAll("_", " "))}</span></div>`).join("");
+      const sourceNodes = anchors.map((s) => `<div class="source-node"><strong>${escapeHtml(s.label)}</strong><span>${escapeHtml(s.eId || "eId unavailable")}</span><span>${escapeHtml(statusLabel(s.legal_status))}</span></div>`).join("");
       setPanel("sourceMap", `<div class="viz-note">Source anchors are RDF legal-source links resolved against the validated Akoma Ntoso XML.</div><div class="source-map"><div class="source-root">RDF rule</div><div class="source-rail">${sourceNodes || chip("no source anchors", "muted")}</div></div>`);
     }
 
@@ -632,8 +848,8 @@
     }
 
     function renderObligationMap(data) {
-      const html = exceptionResults(data).slice(0, 12).map((exception) => `<div class="obligation-column"><h3>${escapeHtml(exception.label)}</h3><div class="chip-list">${statusChip(exception.status)}${(exception.required_conditions || []).map((condition) => chip(condition.label, "obligation")).join("") || chip("no linked condition rows", "muted")}</div></div>`).join("");
-      setPanel("obligationMap", `<div class="viz-note">Exceptions and conditions are shown only when linked in the reviewed RDF ontology.</div><div class="obligation-grid">${html || chip("no RDF exceptions", "muted")}</div>`);
+      const html = exceptionResults(data).slice(0, 12).map((exception) => `<div class="obligation-column"><h3>${escapeHtml(exception.label)}</h3><div class="chip-list">${statusChip(exception.status)}${(exception.required_conditions || []).map((condition) => chip(condition.label, "obligation")).join("")}</div></div>`).join("");
+      setPanel("obligationMap", `<div class="viz-note">Exceptions and conditions are shown only when linked in the reviewed RDF ontology.</div><div class="obligation-grid">${html || chip("Exception view appears when a selected practice has attached exceptions.", "muted")}</div>`);
     }
 
     function renderBipartiteMap(data) {
@@ -920,6 +1136,9 @@
         line.setAttribute("y2", points.ty);
       });
     }
+
+    window.addEventListener("hashchange", renderRoute);
+    loadExplorerData().then(renderRoute);
 
     $("analyze").onclick = async () => {
       $("status").textContent = "Analyzing...";

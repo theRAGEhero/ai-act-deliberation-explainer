@@ -20,6 +20,7 @@ from app.ontology.legal_ontology_store import LegalOntologyStore
 from app.ontology.ontology_store import OntologyStore
 from app.reasoning.article5_reasoner import Article5Reasoner
 from app.models import MAX_TEXT_LENGTH, AnalysisResponse, CaseInputRequest
+from rdflib import RDFS, URIRef
 
 
 MAX_UPLOAD_BYTES = MAX_TEXT_LENGTH * 4
@@ -119,6 +120,41 @@ def legal_ontology_jsonld():
     return Response(content=legal_ontology_store.serialize_jsonld(), media_type="application/ld+json")
 
 
+@app.get("/api/article5/explorer")
+def article5_explorer():
+    practices = []
+    rights: dict[str, dict] = {}
+    graph = legal_ontology_store.get_graph()
+    for practice in legal_ontology_store.get_prohibited_practices():
+        practice_id = practice["id"]
+        affected_rights = legal_ontology_store.get_affected_rights(practice_id)
+        exceptions = legal_ontology_store.get_exceptions(practice_id)
+        conditions = [item for item in legal_ontology_store.get_required_elements(practice_id) if item["label"].startswith("requires Condition:")]
+        elements = [item for item in legal_ontology_store.get_required_elements(practice_id) if not item["label"].startswith("requires Condition:")]
+        anchors = legal_ontology_store.get_source_anchors(practice_id)
+        for right in affected_rights:
+            rights.setdefault(
+                right["id"],
+                {"id": right["id"], "label": right["label"], "uri": right["uri"], "linked_practices": []},
+            )
+            rights[right["id"]]["linked_practices"].append({"id": practice_id, "label": practice["label"]})
+        practices.append(
+            {
+                **practice,
+                "group": "amended" if practice.get("legal_status") == "amended_article5" else "original",
+                "article_ref": _article_ref(anchors),
+                "elements": elements,
+                "exceptions": exceptions,
+                "conditions": conditions,
+                "derogations": legal_ontology_store.get_derogations(practice_id),
+                "rights": affected_rights,
+                "source_anchors": anchors,
+                "rdf_triples": _resource_triples(graph, practice["uri"]),
+            }
+        )
+    return {"practices": practices, "rights": sorted(rights.values(), key=lambda item: item["label"])}
+
+
 @app.get("/api/health")
 def health():
     return {
@@ -141,5 +177,29 @@ def health():
         "legal_source_warnings": corpus.warnings,
         "ontology_triples_count": len(ontology_store.get_graph()),
         "llm_available": llm_agent.available(),
-        "openrouter_available": llm_agent.available(),
     }
+
+
+def _article_ref(anchors: list[dict]) -> str:
+    if not anchors:
+        return "Article 5"
+    labels = [anchor.get("label") or anchor.get("source_anchor") for anchor in anchors]
+    return ", ".join(label.replace("Omnibus", "Amended") for label in labels if label) or "Article 5"
+
+
+def _resource_triples(graph, uri: str) -> list[dict[str, str]]:
+    subject = URIRef(uri)
+    triples = []
+    for predicate, obj in graph.predicate_objects(subject):
+        triples.append({"predicate": _compact_uri(predicate), "object": _compact_uri(obj)})
+    return triples
+
+
+def _compact_uri(value) -> str:
+    if isinstance(value, URIRef):
+        label = next(legal_ontology_store.get_graph().objects(value, RDFS.label), None)
+        if label:
+            return str(label)
+        text = str(value)
+        return text.rstrip("/#").split("#")[-1].split("/")[-1]
+    return str(value)

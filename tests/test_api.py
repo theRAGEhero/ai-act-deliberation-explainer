@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.analysis.llm_agent import OptionalLLMAgent
-from app.main import analyze, health
+from app.main import analyze, article5_explorer, health
 from app.models import MAX_TEXT_LENGTH, CandidateFact, CaseInputRequest, EvidenceSupport
 
 
@@ -16,6 +16,23 @@ def test_health():
     assert "akn_validation" in data
     assert "legal_ontology_status" in data
     assert data["legacy_json_rule_path_removed"] is True
+
+
+def test_article5_explorer_exposes_original_and_amended_groups():
+    data = article5_explorer()
+    groups = {practice["group"] for practice in data["practices"]}
+    assert {"original", "amended"} <= groups
+    assert any(practice["id"] == "DetrimentalSocialScoring" for practice in data["practices"])
+    assert any(practice["id"] == "IntendedScalableNonConsensualIntimateDeepfakeGenerator" for practice in data["practices"])
+    assert all("proposed" not in practice["legal_status"] for practice in data["practices"])
+    assert all("Omnibus" not in practice["article_ref"] for practice in data["practices"])
+    emotion = next(practice for practice in data["practices"] if practice["id"] == "EmotionRecognitionInWorkplace")
+    assert [item["label"] for item in emotion["exceptions"]] == ["Medical reason", "Safety reason"]
+    scraping = next(practice for practice in data["practices"] if practice["id"] == "UntargetedFacialImageScraping")
+    assert scraping["exceptions"] == []
+    rbi = next(practice for practice in data["practices"] if practice["id"] == "RealTimeRemoteBiometricIdentificationInPublicSpacesForLawEnforcement")
+    assert rbi["derogations"][0]["label"] == "Justified urgency derogation from prior authorisation"
+    assert rbi["derogations"][0]["derogates_from"]["label"] == "National law authorisation"
 
 
 def test_index():
@@ -31,6 +48,8 @@ def test_analyze():
     assert data["matched_prohibited_practices"][0]["source_anchors"][0]["eId"] == "chp_II__art_5__para_1__list_1__point_c"
     assert "analysis_unavailable" not in data["raw_rule_output"]
     assert "Ontology-first path used. No JSON rule fallback was used." in data["notes"]
+    assert "Amended Article 5 prohibitions are integrated in this prototype." in data["notes"]
+    assert all("Skipped" not in note and "proposed" not in note for note in data["notes"])
 
 
 def test_remote_biometric_input_does_not_trigger_sensitive_categorisation_without_sensitive_inference():

@@ -40,11 +40,7 @@ class Article5Reasoner:
         facts = self.fact_extractor.merge(deterministic_facts, suggested_facts)
         matches: list[ProhibitedPracticeMatch] = []
         trace: list[TraceabilityItem] = []
-        skipped_omnibus = 0
         for practice in self.legal_ontology.get_prohibited_practices():
-            if not self.legal_ontology.is_current_law_practice(practice["id"]):
-                skipped_omnibus += 1
-                continue
             elements = self.legal_ontology.get_required_elements(practice["id"])
             element_results = self.element_checker.check(facts, elements)
             supported = [item for item in element_results if item.status == "supported"]
@@ -93,9 +89,7 @@ class Article5Reasoner:
                 "LLM-suggested candidate facts were used as evidence inputs; Article 5 legal validation remained RDF/AKN-gated."
                 if any(fact.provenance == "llm_suggested" for fact in facts)
                 else "No LLM-suggested candidate facts were used.",
-                f"Skipped {skipped_omnibus} Omnibus/proposed/amending practice(s) because active analysis is current binding AI Act law only."
-                if skipped_omnibus
-                else "No Omnibus/proposed/amending practices were evaluated.",
+                "Amended Article 5 prohibitions are integrated in this prototype.",
             ],
         )
 
@@ -195,9 +189,11 @@ class Article5Reasoner:
         statuses = {anchor.legal_status for anchor in anchors}
         if statuses == {"current_binding_law"}:
             return "current_binding_law"
+        if statuses == {"amended_article5"}:
+            return "amended_article5"
         if "current_binding_law" in statuses:
-            return "mixed_current_and_amending_material"
-        return "proposed_or_amending_material"
+            return "mixed_current_and_amended_article5"
+        return "amended_article5"
 
     def _parse_anchor(self, label: str) -> tuple[str, str | None, str | None]:
         import re
