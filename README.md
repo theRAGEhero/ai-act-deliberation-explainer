@@ -20,7 +20,7 @@ The app is a discussion, teaching, and issue-spotting tool. It is not legal advi
   reference/akoma-ntoso/                 data/ontology/
   ----------------------                 --------------
   AI Act XML source law                  reviewed Article 5 RDF/OWL model
-  AKN schema files                       current-law + separately marked amendments
+  AKN schema files                       original + amended Article 5 practices
            |                                      |
            v                                      v
   app/legal_source/                     app/ontology/
@@ -253,9 +253,6 @@ app/
   ontology/
     legal_ontology_store.py     Reviewed Article 5 RDF/OWL loader and validator
     case_graph.py               Per-analysis RDF graph builder
-    ontology_builder.py         General ontology export builder
-    ontology_store.py           General ontology access/serialization
-    export.py                   Turtle/JSON-LD file export helper
 
   reasoning/
     fact_extractor.py           Deterministic candidate-fact extraction
@@ -274,8 +271,7 @@ data/
   ontology/
     article5_reviewed.ttl       Reviewed Article 5 legal ontology
   supporting/
-    seed_concepts.json          Non-legal support data for general ontology export
-    seed_annexes.json           Non-legal support data for general ontology export
+    seed_concepts.json          Non-legal labels used by the article/definition store
 
 reference/
   akoma-ntoso/
@@ -289,18 +285,12 @@ reference/
 examples/
   sample-inputs/                Example text inputs for manual testing/demo
 
-generated/
-  ontology.ttl                  Generated general ontology export
-  ontology.jsonld               Generated general ontology export
-
 scripts/
   parse_ai_act.py               Parser smoke-check script
-  build_ontology.py             Rebuilds generated ontology exports
 
 tests/
   test_akn_parser.py
   test_api.py
-  test_ontology_builder.py
   test_ontology_first_architecture.py
 ```
 
@@ -643,16 +633,6 @@ Example:
 GET /api/articles/5
 ```
 
-### `GET /api/ontology.ttl`
-
-Returns the broad/generated ontology as Turtle.
-
-This endpoint is useful for project-level concept export. It is not the active Article 5 legal source of truth.
-
-### `GET /api/ontology.jsonld`
-
-Returns the broad/generated ontology as JSON-LD.
-
 ### `GET /api/legal-ontology.ttl`
 
 Returns the merged reviewed legal ontology from `LegalOntologyStore` as Turtle.
@@ -763,31 +743,20 @@ scenario
 
 Only a short Turtle preview is returned in `rdf_triples_preview`.
 
-## General Ontology Export
+## Legal Ontology Export
 
-There are two RDF surfaces:
+There is one RDF/OWL ontology surface for the active checker:
 
 ```text
-Reviewed legal ontology:
-  data/ontology/*.ttl
+Reviewed Article 5 legal ontology:
+  data/ontology/article5_reviewed.ttl
   /api/legal-ontology.ttl
   /api/legal-ontology.jsonld
+  /api/article5/explorer
   Used by Article5Reasoner
-
-General project ontology:
-  data/supporting/*.json
-  generated/ontology.ttl
-  generated/ontology.jsonld
-  /api/ontology.ttl
-  /api/ontology.jsonld
-  Used for broader concept/demo export
 ```
 
-Rebuild generated exports:
-
-```bash
-python scripts/build_ontology.py
-```
+The per-case RDF preview in `rdf_triples_preview` is generated from one analysis result. It is not a second legal ontology.
 
 ## Local Setup
 
@@ -852,12 +821,6 @@ Check AKN parsing:
 
 ```bash
 python scripts/parse_ai_act.py
-```
-
-Rebuild broad ontology exports:
-
-```bash
-python scripts/build_ontology.py
 ```
 
 Run one local API request:
@@ -940,4 +903,8 @@ It should not be presented as:
 
 ## License
 
-See `LICENSE`.
+This repository is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0).
+
+You may share and adapt the material, including for commercial purposes, provided that appropriate attribution is given, a link to the license is provided, and changes are indicated.
+
+See `LICENSE` for the repository notice and the canonical license links.

@@ -195,6 +195,19 @@
       return String(value || "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;" }[ch]));
     }
 
+    async function readJsonResponse(response) {
+      const contentType = response.headers.get("content-type") || "";
+      const bodyText = await response.text();
+      if (!contentType.includes("application/json")) {
+        throw new Error(`Expected JSON from ${response.url || "request"}, got ${contentType || "unknown content type"}: ${bodyText.slice(0, 160)}`);
+      }
+      try {
+        return JSON.parse(bodyText);
+      } catch (error) {
+        throw new Error(`Invalid JSON from ${response.url || "request"}: ${bodyText.slice(0, 160)}`);
+      }
+    }
+
     function wrapSvgText(text, maxChars = 18) {
       const words = String(text || "").split(/\s+/);
       const lines = [];
@@ -263,8 +276,13 @@
 
     async function loadExplorerData() {
       if (explorerData) return explorerData;
-      const response = await fetch("/api/article5/explorer");
-      explorerData = response.ok ? await response.json() : { practices: [], rights: [] };
+      try {
+        const response = await fetch("/api/article5/explorer");
+        explorerData = response.ok ? await readJsonResponse(response) : { practices: [], rights: [] };
+      } catch (error) {
+        console.error(error);
+        explorerData = { practices: [], rights: [] };
+      }
       renderArticle5SideNav();
       return explorerData;
     }
@@ -775,7 +793,7 @@
       try {
         const response = await fetch("/api/health");
         if (response.ok) {
-          const health = await response.json();
+          const health = await readJsonResponse(response);
           ontologyStatus = `
             <div class="ontology-status-grid">
               <span><strong>${escapeHtml(health.active_analysis_path || "ontology_first_article5")}</strong>Analysis path</span>
@@ -919,7 +937,6 @@
                 <li><code>Article5Reasoner</code>: ontology-first analysis path.</li>
                 <li><code>LegalOntologyStore</code>: reviewed RDF ontology loader.</li>
                 <li><code>LegalSourceIndex</code>: Article 3 and Article 5 source anchors.</li>
-                <li><code>OntologyStore</code>: RDF graph with AI Act concepts.</li>
                 <li><code>ReportBuilder</code>: stable JSON, disclaimer, graph data.</li>
                 <li><code>OptionalLLMAgent</code>: optional LLM candidate facts and wording refinement.</li>
               </ul>
@@ -942,8 +959,9 @@
                 <li><code>POST /api/analyze</code>: JSON analysis.</li>
                 <li><code>POST /api/upload</code>: .txt upload analysis.</li>
                 <li><code>GET /api/articles</code>: parsed AI Act sources.</li>
-                <li><code>GET /api/ontology.ttl</code>: RDF/Turtle export.</li>
-                <li><code>GET /api/ontology.jsonld</code>: JSON-LD export.</li>
+                <li><code>GET /api/legal-ontology.ttl</code>: reviewed Article 5 RDF/Turtle export.</li>
+                <li><code>GET /api/legal-ontology.jsonld</code>: reviewed Article 5 JSON-LD export.</li>
+                <li><code>GET /api/article5/explorer</code>: ontology explorer data.</li>
                 <li><code>GET /api/health</code>: parser and ontology status.</li>
               </ul>
             </div>
@@ -1151,15 +1169,16 @@
       } else {
         res = await fetch("/api/analyze", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ text: $("text").value, use_llm: $("useLlm").checked }) });
       }
-      const data = await res.json();
-      $("status").textContent = res.ok ? "" : JSON.stringify(data);
-      if (!res.ok) return;
-      currentData = data;
-      selectedPracticeId = matches(data)[0]?.id || null;
-      $("output").hidden = false;
-      $("summary").textContent = data.case_summary;
-      $("citizen").textContent = data.citizen_explanation;
-      renderResultStats(data);
+      try {
+        const data = await readJsonResponse(res);
+        $("status").textContent = res.ok ? "" : JSON.stringify(data);
+        if (!res.ok) return;
+        currentData = data;
+        selectedPracticeId = matches(data)[0]?.id || null;
+        $("output").hidden = false;
+        $("summary").textContent = data.case_summary;
+        $("citizen").textContent = data.citizen_explanation;
+        renderResultStats(data);
       renderProhibitions(data.matched_prohibited_practices || []);
       renderElementSummary(data);
       renderExceptionSummary(data);
@@ -1198,6 +1217,10 @@
         $("trace").appendChild(tr);
       });
       $("raw").textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        console.error(error);
+        $("status").textContent = error.message || "The API response could not be parsed as JSON.";
+      }
     };
   </script>
 </body>

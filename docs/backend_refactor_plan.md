@@ -50,7 +50,7 @@ The source-law layer is the validated Akoma Ntoso XML. The future legal model is
 
 The reviewed Article 5 RDF ontology is now present at `data/ontology/article5_reviewed.ttl`.
 
-The backend expects legal ontology Turtle files in `data/ontology/` by default. The `LegalOntologyStore` validates the supported vocabulary and keeps Omnibus/amending material distinguishable from current binding Regulation (EU) 2024/1689 material.
+The backend expects legal ontology Turtle files in `data/ontology/` by default. The `LegalOntologyStore` validates the supported vocabulary and exposes original and amended Article 5 material from the reviewed ontology.
 
 ## Test Fixture Ontology
 
@@ -58,4 +58,4 @@ The backend expects legal ontology Turtle files in `data/ontology/` by default. 
 
 ## Future Legal Material
 
-If proposed amendments, Omnibus material, guidance, or non-binding interpretation layers are added later, they must be marked separately from current binding Regulation (EU) 2024/1689 law. The active source-law layer must remain distinguishable from proposed or explanatory material.
+If future proposed amendments, guidance, or non-binding interpretation layers are added later, they must be marked separately from the reviewed Article 5 ontology used by the active checker.

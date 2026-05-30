@@ -17,7 +17,6 @@ from app.legal_source.legal_db import LegalKnowledgeDB
 from app.legal_source.source_index import LegalSourceIndex
 from app.ontology.case_graph import CaseGraphBuilder
 from app.ontology.legal_ontology_store import LegalOntologyStore
-from app.ontology.ontology_store import OntologyStore
 from app.reasoning.article5_reasoner import Article5Reasoner
 from app.models import MAX_TEXT_LENGTH, AnalysisResponse, CaseInputRequest
 from rdflib import RDFS, URIRef
@@ -32,7 +31,6 @@ templates = Jinja2Templates(directory=settings.project_root / "app/templates")
 legal_db = LegalKnowledgeDB(settings.resolve_path(settings.seed_concepts_path))
 akn_path = settings.resolve_path(settings.ai_act_akn_path)
 corpus = legal_db.load_from_akn(akn_path)
-ontology_store = OntologyStore(settings.resolve_path(settings.seed_concepts_path), settings.resolve_path(settings.seed_annexes_path), legal_db)
 akn_validation = validate_akn_xml(
     akn_path,
     settings.resolve_path(settings.akomantoso_xsd_path),
@@ -100,16 +98,6 @@ def article(number: str):
     return found
 
 
-@app.get("/api/ontology.ttl", response_class=PlainTextResponse)
-def ontology_ttl():
-    return ontology_store.serialize_turtle()
-
-
-@app.get("/api/ontology.jsonld")
-def ontology_jsonld():
-    return Response(content=ontology_store.serialize_jsonld(), media_type="application/ld+json")
-
-
 @app.get("/api/legal-ontology.ttl", response_class=PlainTextResponse)
 def legal_ontology_ttl():
     return legal_ontology_store.serialize_turtle()
@@ -175,7 +163,6 @@ def health():
         "legacy_json_rule_path_removed": True,
         "articles_parsed": len([a for a in corpus.articles if a.source_type == "AKN"]),
         "legal_source_warnings": corpus.warnings,
-        "ontology_triples_count": len(ontology_store.get_graph()),
         "llm_available": llm_agent.available(),
     }
 
